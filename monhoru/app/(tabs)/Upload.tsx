@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { StyleSheet, View, Button, Alert, Image } from "react-native";
+import { StyleSheet, View, Button, Image, TouchableOpacity, TextInput, Text } from "react-native";
 import { CameraView, useCameraPermissions, CameraType } from "expo-camera";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function UploadScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [type, setType] = useState<CameraType>("back");
   const cameraRef = useRef<CameraView>(null);
-  const router = useRouter();
-  const { uri } = useLocalSearchParams<{ uri?: string }>();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [step, setStep] = useState<"select" | "form">("select");
+  const [title, setTitle] = useState("");
+  const [memo, setMemo] = useState("");
 
   useEffect(() => {
     if (!permission) {
@@ -25,23 +28,92 @@ export default function UploadScreen() {
     return <ThemedText>カメラの許可がありません</ThemedText>;
   }
 
+  // カメラで写真を撮る
   const takePicture = async () => {
     // @ts-ignore
     if (cameraRef.current && cameraRef.current.takePictureAsync) {
       // @ts-ignore
       const result = await cameraRef.current.takePictureAsync();
-      Alert.alert("写真を撮影しました", result.uri, [
-        {
-          text: "ギャラリーで確認",
-          onPress: () => router.push({ pathname: "/photoSaved", params: { uri: result.uri } }),
-        },
-        { text: "OK" },
-      ]);
-    } else {
-      Alert.alert("カメラが初期化されていません");
+      setSelectedImage(result.uri);
     }
   };
 
+  // ギャラリーから写真を選ぶ
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setSelectedImage(result.assets[0].uri);
+    }
+  };
+
+  // 再撮影・再選択
+  const handleRetake = () => {
+    setSelectedImage(null);
+    setStep("select");
+    setTitle("");
+    setMemo("");
+  };
+
+  // 「この写真で進む」→ 投稿フォームへ
+  const handleProceed = () => {
+    setStep("form");
+  };
+
+  // 投稿処理（ここでAPI送信や保存など）
+  const handleSubmit = () => {
+    // ここでtitle, memo, selectedImageを使って投稿処理
+    alert(`タイトル: ${title}\nメモ: ${memo}\n画像: ${selectedImage}`);
+    // 初期化
+    setSelectedImage(null);
+    setStep("select");
+    setTitle("");
+    setMemo("");
+  };
+
+  // 投稿フォーム画面
+  if (selectedImage && step === "form") {
+    return (
+      <ThemedView style={styles.container}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleRetake}>
+          <Ionicons name="close" size={32} color="#333" />
+        </TouchableOpacity>
+        <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+        <TextInput
+          style={styles.input}
+          placeholder="タイトル"
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextInput
+          style={[styles.input, { height: 80 }]}
+          placeholder="メモ"
+          value={memo}
+          onChangeText={setMemo}
+          multiline
+        />
+        <Button title="投稿する" onPress={handleSubmit} />
+      </ThemedView>
+    );
+  }
+
+  // 画像確認画面
+  if (selectedImage && step === "select") {
+    return (
+      <ThemedView style={styles.container}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleRetake}>
+          <Ionicons name="close" size={32} color="#333" />
+        </TouchableOpacity>
+        <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+        <Button title="この写真で進む" onPress={handleProceed} />
+      </ThemedView>
+    );
+  }
+
+  // 通常のカメラ・ギャラリー選択画面
   return (
     <ThemedView style={styles.container}>
       <CameraView
@@ -58,6 +130,10 @@ export default function UploadScreen() {
           title="写真を撮る"
           onPress={takePicture}
         />
+        <Button
+          title="ギャラリーから選ぶ"
+          onPress={pickImage}
+        />
       </View>
     </ThemedView>
   );
@@ -67,17 +143,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   camera: {
-    height: 500, // 高さを固定
+    height: 500,
     borderRadius: 12,
     overflow: "hidden",
     marginVertical: 16,
+    width: "100%",
   },
   buttonContainer: {
     marginTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 8,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 32,
+    right: 24,
+    zIndex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 4,
+  },
+  previewImage: {
+    width: 300,
+    height: 300,
+    borderRadius: 12,
+    marginBottom: 16,
+    marginTop: 48,
+  },
+  input: {
+    width: 300,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: "#fff",
   },
 });
