@@ -103,12 +103,20 @@ export default function UploadScreen() {
   // 画像確認画面
   if (selectedImage && step === "select") {
     return (
-      <ThemedView style={styles.container}>
-        <TouchableOpacity style={styles.closeButton} onPress={handleRetake}>
-          <Ionicons name="close" size={32} color="#333" />
+      <ThemedView style={[styles.container, { backgroundColor: "#f5f6fa" }]}>
+        <TouchableOpacity style={styles.closeButtonTopLeft} onPress={handleRetake}>
+          <Ionicons name="close" size={28} color="#333" />
         </TouchableOpacity>
-        <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-        <Button title="この写真で進む" onPress={handleProceed} />
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: selectedImage }}
+            style={styles.fullImage}
+            resizeMode="cover"
+          />
+        </View>
+        <TouchableOpacity style={styles.nextButton} onPress={handleProceed}>
+          <Text style={styles.nextButtonText}>次へ</Text>
+        </TouchableOpacity>
       </ThemedView>
     );
   }
@@ -142,9 +150,10 @@ export default function UploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 0,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#fff",
   },
   camera: {
     height: 500,
@@ -168,12 +177,54 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 4,
   },
+  closeButtonTopLeft: {
+    position: "absolute",
+    top: 32,
+    left: 24,
+    zIndex: 2,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderRadius: 16,
+    padding: 4,
+  },
+  imageWrapper: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 32,
+    marginBottom: 80,
+  },
+  fullImage: {
+    width: "90%",
+    height: "100%",
+    borderRadius: 20,
+  },
+  nextButton: {
+    position: "absolute",
+    bottom: 40,
+    alignSelf: "center",
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    paddingHorizontal: 40,
+    paddingVertical: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  nextButtonText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
   previewImage: {
-    width: 300,
-    height: 300,
+    width: "100%",
+    aspectRatio: 1, // 正方形で表示。縦長にしたい場合は aspectRatio: 3/4 などもOK
     borderRadius: 12,
     marginBottom: 16,
     marginTop: 48,
+    backgroundColor: "#eee", // 画像がない時の背景
   },
   input: {
     width: 300,
