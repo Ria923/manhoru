@@ -17,7 +17,7 @@ import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router"; // 🔄 expo-router 用の画面遷移フック
+import { useRouter } from "expo-router"; //  expo-router 用の画面遷移フック
 
 const { width } = Dimensions.get("window");
 const ITEM_SIZE = width / 3 - 6;

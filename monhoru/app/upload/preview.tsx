@@ -1,18 +1,12 @@
-import {
-  View,
-  Image,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from "react-native";
-import { useRouter, useLocalSearchParams, Stack } from "expo-router"; // Stack を追加
+import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter, useLocalSearchParams, Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons"; // ← アイコンを使うために追加
 
 export default function PreviewScreen() {
   const router = useRouter();
-  const { uri } = useLocalSearchParams(); // 前の画面から渡された画像URIを受け取る
+  const { uri } = useLocalSearchParams();
 
-  // URIが無効な場合の保護
+  // 🔒 URIが無効な場合の保護処理
   if (!uri || typeof uri !== "string") {
     return (
       <View style={styles.container}>
@@ -23,23 +17,22 @@ export default function PreviewScreen() {
 
   return (
     <>
-      {/* ヘッダー非表示設定 */}
-      <Stack.Screen
-        name="upload/postform"
-        options={{
-          title: "",
-          headerStyle: {
-            backgroundColor: "#fff",
-          },
-          headerShadowVisible: false,
-        }}
-      />
+      {/* デフォルトのヘッダーは非表示にする */}
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
+        {/* 🔙 自作の戻るボタン（画面左上に配置） */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="chevron-back" size={28} color="#fff" />
+        </TouchableOpacity>
+
         {/* プレビュー画像表示 */}
         <Image source={{ uri }} style={styles.image} />
 
-        {/* 投稿画面へ遷移 */}
+        {/* 投稿画面へ遷移ボタン */}
         <TouchableOpacity
           style={styles.nextButton}
           onPress={() =>
@@ -62,6 +55,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
+  },
+  backButton: {
+    position: "absolute",
+    top: 50, // SafeArea考慮して余裕を持たせる
+    left: 20,
+    zIndex: 10,
+    padding: 8,
   },
   image: {
     width: "100%",
