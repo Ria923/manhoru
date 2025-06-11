@@ -12,16 +12,23 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "このアプリはカメラを使用します",
-        "NSPhotoLibraryUsageDescription": "このアプリは写真ライブラリにアクセスします"
-      }
+        "NSPhotoLibraryUsageDescription": "このアプリは写真ライブラリにアクセスします",
+        "NSLocationWhenInUseUsageDescription": "あなたの現在地を使って地域情報を表示します"
+      },
+      "bundleIdentifier": "com.anonymous.monhoru"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "permissions": ["CAMERA"]
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.monhoru"
     },
     "web": {
       "bundler": "metro",
