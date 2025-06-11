@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet, Dimensions } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import { ManholeMap } from "@/components/ManholeMap";
@@ -18,5 +18,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
 });

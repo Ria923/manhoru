@@ -1,78 +1,56 @@
-import { Tabs } from "expo-router";
-import React from "react";
-import { Platform } from "react-native";
+import React from 'react';
+import { Tabs } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+/**
+ * FontAwesomeアイコンをタブバーで使いやすくするためのヘルパーコンポーネント
+ * @param props - アイコン名と色を含むプロパティ
+ * @returns - スタイルが適用されたアイコンコンポーネント
+ */
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>['name'];
+  color: string;
+}) {
+  // styleでアイコンの垂直位置を微調整
+  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
+}
 
+/**
+ * アプリのメインとなるタブナビゲーションのレイアウトを定義するコンポーネント
+ */
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
-        }),
-      }}
-    >
+        tabBarActiveTintColor: '#007AFF', // アクティブなタブのアイコンとラベルの色
+        headerShown: false, // すべての画面でヘッダーを非表示にする
+      }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+          title: "マップ",
+          tabBarIcon: ({ color }) => <TabBarIcon name="map-marker" color={color} />,
         }}
       />
       <Tabs.Screen
         name="gallery"
         options={{
           title: "ギャラリー",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="photo.fill" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="photo" color={color} />,
         }}
       />
       <Tabs.Screen
         name="upload"
         options={{
           title: "アップロード",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="arrow.up.circle.fill" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="cloud-upload" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "プロフィール",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="person.fill" color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="notice"
-        options={{
-          href: null, // タブバーに表示しない
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          href: null, // タブバーに表示しない
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </Tabs>
