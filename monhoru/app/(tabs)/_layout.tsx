@@ -1,6 +1,6 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React from "react";
+import { Tabs } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 /**
  * FontAwesomeアイコンをタブバーで使いやすくするためのヘルパーコンポーネント
@@ -8,7 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
  * @returns - スタイルが適用されたアイコンコンポーネント
  */
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
 }) {
   // styleでアイコンの垂直位置を微調整
@@ -22,14 +22,17 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#007AFF', // アクティブなタブのアイコンとラベルの色
+        tabBarActiveTintColor: "#007AFF", // アクティブなタブのアイコンとラベルの色
         headerShown: false, // すべての画面でヘッダーを非表示にする
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: "マップ",
-          tabBarIcon: ({ color }) => <TabBarIcon name="map-marker" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="map-marker" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -43,7 +46,9 @@ export default function TabLayout() {
         name="upload"
         options={{
           title: "アップロード",
-          tabBarIcon: ({ color }) => <TabBarIcon name="cloud-upload" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="cloud-upload" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
