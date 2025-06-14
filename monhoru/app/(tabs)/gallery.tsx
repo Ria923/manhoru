@@ -1,92 +1,153 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, FlatList, Image, TouchableOpacity, View } from "react-native";
-import * as MediaLibrary from "expo-media-library";
+import { StyleSheet, Image, ScrollView, View, Text, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import sampleData from "../../components/SampleData"; // 追加
 
-export default function GalleryScreen() {
-  const [photos, setPhotos] = useState<{ id: string; uri: string }[]>([]);
-  const [permission, requestPermission] = MediaLibrary.usePermissions();
+export default function NoticeScreen() {
   const router = useRouter();
 
-  useEffect(() => {
-    (async () => {
-      if (!permission?.granted) {
-        await requestPermission();
-      }
-      if (permission?.granted) {
-        const album = await MediaLibrary.getAlbumAsync("Camera");
-        const assets = await MediaLibrary.getAssetsAsync({
-          album: album?.id,
-          sortBy: [["creationTime", false]],
-          mediaType: ["photo"],
-        });
-        const assetsWithUri = await Promise.all(
-          assets.assets.map(async (asset) => {
-            const info = await MediaLibrary.getAssetInfoAsync(asset.id);
-            return { id: asset.id, uri: info.localUri || asset.uri };
-          })
-        );
-        setPhotos(assetsWithUri);
-      }
-    })();
-  }, [permission]);
-
-  if (!permission) {
-    return <ThemedText>ギャラリーの許可を確認中...</ThemedText>;
-  }
-  if (!permission.granted) {
-    return <ThemedText>ギャラリーへのアクセスが許可されていません</ThemedText>;
-  }
-
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">ギャラリー</ThemedText>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <ThemedView style={styles.container}>
+        {/* 最新の写真 */}
+        <Text style={styles.sectionTitle}>最新の写真</Text>
+        <View style={styles.latestCardsRow}>
+          {sampleData.slice(0, 3).map((item, idx) => (
+            <TouchableOpacity
+              key={idx}
+              style={styles.latestCard}
+              activeOpacity={0.7}
+              onPress={() =>
+                router.push({
+                  pathname: "/gallery/detail",
+                  params: { idx: idx }, // ←インデックスを渡す
+                })
+              }
+            >
+              <Image source={item.image} style={styles.latestImage} resizeMode="cover" />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+                <Text style={styles.cardDate}>{`投稿日：${item.date}`}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* 一覧ボタン */}
         <TouchableOpacity
-          style={styles.cameraButton}
-          onPress={() => router.push("/Upload")}
+          style={styles.listButton}
+          activeOpacity={0.7}
+          onPress={() => router.push("/gallery/all")}
         >
-          <Ionicons name="camera-outline" size={32} color="#333" />
+          <Text style={styles.listButtonText}>すべての一覧</Text>
+          <Text style={styles.listButtonArrow}>＞</Text>
         </TouchableOpacity>
-      </View>
-      <FlatList
-        data={photos}
-        keyExtractor={(item) => item.id}
-        numColumns={3}
-        renderItem={({ item }) => (
-          <TouchableOpacity>
-            <Image
-              source={{ uri: item.uri }}
-              style={styles.image}
-            />
-          </TouchableOpacity>
-        )}
-      />
-    </ThemedView>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 16 }}>
+          {sampleData.map((item, idx) => (
+            <TouchableOpacity
+              key={idx}
+              style={styles.listCard}
+              activeOpacity={0.7}
+              onPress={() =>
+                router.push({
+                  pathname: "/gallery/detail",
+                  params: { idx: idx },
+                })
+              }
+            >
+              <Image source={item.image} style={styles.listImage} resizeMode="cover" />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 8,
+    padding: 16,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 24,
     marginBottom: 8,
   },
-  cameraButton: {
-    padding: 8,
+  latestCardsRow: {
+    flexDirection: "column", // 横並び→縦並び
+    marginBottom: 5,
   },
-  image: {
-    width: 110,
-    height: 110,
-    margin: 4,
+  latestCard: {
+    flexDirection: "row",
+    backgroundColor: "#F8E99C",
+    borderRadius: 16,
+    alignItems: "center",
+    padding: 12,
+    marginBottom: 12, // marginRight→marginBottom
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  latestImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: "#eee",
+    marginRight: 8,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  cardDate: {
+    fontSize: 12,
+    color: "#555",
+  },
+  listButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginTop: 24,
+  },
+  listButtonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  listButtonArrow: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#222",
+    marginLeft: 6,
+    marginTop: 1,
+  },
+  listCard: {
+    width: 120,
+    height: 120,
+    backgroundColor: "#eee",
+    borderRadius: 8,
+    marginRight: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  listImage: {
+    width: "100%",
+    height: "100%",
     borderRadius: 8,
   },
 });
