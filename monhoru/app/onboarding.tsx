@@ -15,7 +15,6 @@ import { slides } from "@/data/slidesData";
 import * as Google from "expo-auth-session/providers/google";
 import { signInWithCredential, GoogleAuthProvider } from "firebase/auth";
 
-// ✅ 改成共用路徑
 import { auth } from "@/lib/firebase";
 
 import {
