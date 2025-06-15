@@ -10,25 +10,25 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.monhoru",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSCameraUsageDescription": "このアプリはカメラを使用します",
         "NSPhotoLibraryUsageDescription": "このアプリは写真ライブラリにアクセスします",
         "NSLocationWhenInUseUsageDescription": "あなたの現在地を使って地域情報を表示します"
-      },
-      "bundleIdentifier": "com.anonymous.monhoru"
+      }
     },
     "android": {
+      "package": "com.anonymous.monhoru",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
-      ],
-      "package": "com.anonymous.monhoru"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +37,7 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-google-signin/google-signin",
       [
         "expo-splash-screen",
         {
@@ -56,6 +57,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "028f49b6-dffc-48b4-8ca1-9ac7223f981f"
+      }
     }
   }
 }

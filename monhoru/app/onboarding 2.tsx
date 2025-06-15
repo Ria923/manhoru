@@ -14,15 +14,8 @@ import Swiper from "react-native-swiper";
 import { slides } from "@/data/slidesData";
 import * as Google from "expo-auth-session/providers/google";
 import { signInWithCredential, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "@/lib/firebase"; // 共用 auth
 
-// ✅ 改成共用路徑
-import { auth } from "@/lib/firebase";
-
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  type User,
-} from "firebase/auth";
 const { width } = Dimensions.get("window");
 
 export default function Onboarding() {
@@ -30,17 +23,17 @@ export default function Onboarding() {
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId:
-      "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com",
+      "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com", // Web Client ID
     iosClientId:
-      "613318080473-3j18jo5n892kjvb7mhnmr95oufefka0e.apps.googleusercontent.com",
+      "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com",
     androidClientId:
-      "613318080473-f7b617dml07a5a6slj4gbfaavdam43v3.apps.googleusercontent.com",
+      "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com",
   });
 
   useEffect(() => {
     if (response?.type === "success" && response.authentication?.idToken) {
       const { idToken } = response.authentication;
-      const credential = GoogleAuthProvider.credential(idToken); // IDトークンから認証情報を生成
+      const credential = GoogleAuthProvider.credential(idToken);
 
       signInWithCredential(auth, credential)
         .then((userCredential) => {
@@ -54,8 +47,9 @@ export default function Onboarding() {
   }, [response]);
 
   const handleGoogleLogin = () => {
-    promptAsync(); // ✅ Googleログインを開始
+    promptAsync();
   };
+
   return (
     <Swiper
       ref={swiperRef}
