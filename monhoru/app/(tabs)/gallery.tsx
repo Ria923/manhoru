@@ -12,7 +12,6 @@ export default function NoticeScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ThemedView style={styles.container}>
         {/* 最新の写真 */}
-        <Text style={styles.sectionTitle}>最新の写真</Text>
         <View style={styles.latestCardsRow}>
           {sampleData.slice(0, 3).map((item, idx) => (
             <TouchableOpacity
@@ -72,15 +71,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 24,
-    marginBottom: 8,
-  },
   latestCardsRow: {
     flexDirection: "column", // 横並び→縦並び
     marginBottom: 5,
+    marginTop: 60,
   },
   latestCard: {
     flexDirection: "row",
