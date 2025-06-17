@@ -1,6 +1,6 @@
-import { Tabs, useSegments } from "expo-router";
+import { Tabs, useRouter, useSegments } from "expo-router";
 import React from "react";
-import { Platform, Image, View, StyleSheet } from "react-native";
+import { Image, View, StyleSheet, TouchableOpacity } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab"; // タブを押したときの触感効果を追加するカスタムボタン
 import TabBarBackground from "@/components/ui/TabBarBackground"; // タブバーの背景デザイン（カスタム）
@@ -8,26 +8,43 @@ import { useColorScheme } from "@/hooks/useColorScheme"; // カラースキー�
 
 export default function TabLayout() {
   const colorScheme = useColorScheme(); // 現在のカラースキーム（未使用だがテーマ制御に使える）
+  const router = useRouter(); // ← これを追加
 
   const segments = useSegments(); // 現在の画面パス情報を取得（例: ["(tabs)", "upload"]）
   const currentRoute = segments[segments.length - 1] ?? ""; // 最後の要素が現在のページ名
 
-  const hiddenLogoPages = ["upload", "postform", "preview"]; // ロゴを非表示にしたいページをここで管理
+  // 非表示にしたいページ名を配列で管理
+  const hiddenHeaderPages = ["Upload"]; // 例: gallery, gallery/all など
+
+  const shouldHideHeader = hiddenHeaderPages.includes(currentRoute);
 
   return (
     <View style={{ flex: 1 }}>
-      {/* 左上のロゴ表示部分（特定ページでは非表示） */}
-      {!hiddenLogoPages.includes(currentRoute) && (
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("@/assets/images/splash-icon.png")}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </View>
+      {/* ロゴとお知らせボタンを特定ページ以外で表示 */}
+      {!shouldHideHeader && (
+        <>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("@/assets/images/splash-icon.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => router.push("/notice")}
+            hitSlop={10}
+          >
+            <Image
+              source={require("@/assets/icons/notification.png")}
+              style={{ width: 40, height: 40 }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </>
       )}
 
-      {/* タブナビゲーションの定義部分 */}
+      {/* タブナビゲーション */}
       <Tabs
         screenOptions={{
           headerShown: false, // 画面上部のヘッダーは非表示
@@ -131,22 +148,28 @@ export default function TabLayout() {
   );
 }
 
-// スタイル定義（ロゴ用）
 const styles = StyleSheet.create({
   logoWrapper: {
-    position: "absolute", // 絶対位置（画面左上に固定）
+    position: "absolute",
     top: 40,
     left: 10,
     zIndex: 10,
     width: 120,
     height: 65,
-    backgroundColor: "#fff", // 白背景（画像の視認性を高める）
-    borderRadius: 10, // 角丸
+    backgroundColor: "#fff",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
   logoImage: {
     width: 107,
-    height: 61, // 実際の画像サイズ（縮小される）
+    height: 61,
+  },
+  notificationButton: {
+    position: "absolute",
+    top: 40,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: "transparent",
   },
 });
