@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "monhoru",
+    "slug": "monhoru",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "monhoru",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.monhoru",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSCameraUsageDescription": "このアプリはカメラを使用します",
+        "NSPhotoLibraryUsageDescription": "このアプリは写真ライブラリにアクセスします",
+        "NSLocationWhenInUseUsageDescription": "あなたの現在地を使って地域情報を表示します"
+      }
+    },
+    "android": {
+      "package": "com.anonymous.monhoru",
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "packagerOpts": {
+      "hostType": "localhost"
+    },
+    "plugins": [
+      "expo-router",
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "カメラの使用を許可しますか？",
+          "photosPermission": "写真ライブラリへのアクセスを許可しますか？"
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "028f49b6-dffc-48b4-8ca1-9ac7223f981f"
+      }
+    }
+  }
+}

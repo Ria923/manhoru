@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "613318080473",
+    "project_id": "monhoru-4dd61",
+    "storage_bucket": "monhoru-4dd61.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613318080473:android:f98dcbe0a2c525d9eccbc8",
+        "android_client_info": {
+          "package_name": "com.anonymous.monhoru"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "613318080473-f7b617dml07a5a6slj4gbfaavdam43v3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.monhoru",
+            "certificate_hash": "6211e3afda6148eaba7d63bfc0716292c3942735"
+          }
+        },
+        {
+          "client_id": "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa_kIXC225CJqN7mpPuIxy_xiEjLihLHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "613318080473-bhanbml5946h27o8hma8vjt530vbg64f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "613318080473-3j18jo5n892kjvb7mhnmr95oufefka0e.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anonymous.monhoru"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
