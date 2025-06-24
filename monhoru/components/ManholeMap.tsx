@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
-  Platform,
   TouchableOpacity,
   Image,
 } from "react-native";
@@ -29,22 +28,21 @@ export function ManholeMap() {
           return;
         }
 
-        // 位置情報の精度を設定
         let location = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.BestForNavigation,
         });
-        console.log("現在位置:", location.coords);
         setLocation(location);
 
-        // 初期表示位置を現在地に設定
-        setRegion({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
+        // 取得した現在地を初期位置に設定
+        if (location) {
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.02,
+            longitudeDelta: 0.02,
+          });
+        }
 
-        // 位置情報の監視を開始
         const subscription = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.BestForNavigation,
@@ -52,12 +50,10 @@ export function ManholeMap() {
             distanceInterval: 1,
           },
           (newLocation) => {
-            console.log("位置更新:", newLocation.coords);
             setLocation(newLocation);
           }
         );
 
-        // クリーンアップ
         return () => {
           subscription.remove();
         };
@@ -68,21 +64,64 @@ export function ManholeMap() {
     })();
   }, []);
 
-  const moveToCurrentLocation = () => {
-    if (location && mapRef.current) {
+  const moveToCurrentLocation = async () => {
+    try {
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.BestForNavigation,
+      });
+
       const newRegion = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       };
+
+      // stateも更新しておく
       setRegion(newRegion);
-      mapRef.current.animateToRegion(newRegion, 1000);
+      // animateToRegionでスムーズに移動
+      mapRef.current?.animateToRegion(newRegion, 1000);
+    } catch (error) {
+      console.error("現在地の取得に失敗:", error);
+      Alert.alert("エラー", "現在地の取得に失敗しました");
     }
   };
 
+  const akihabaraLocations = [
+    {
+      id: 1,
+      title: "秋葉原駅",
+      description: "JRと日比谷線の駅",
+      latitude: 35.69836,
+      longitude: 139.77313,
+    },
+    {
+      id: 2,
+      title: "神田明神",
+      description: "歴史ある神社",
+      latitude: 35.7018,
+      longitude: 139.7676,
+    },
+    {
+      id: 3,
+      title: "ヨドバシAkiba",
+      description: "大型家電量販店",
+      latitude: 35.6986,
+      longitude: 139.7748,
+    },
+    {
+      id: 4,
+      title: "秋葉原ガチャポン会館",
+      description: "たくさんのガチャガチャがある",
+      latitude: 35.7004,
+      longitude: 139.7707,
+    },
+  ];
+
+  // regionがセットされるまでローディング表示などにしても良い
   if (!region) {
-    return null; // 位置情報が取得できるまで表示しない
+    // 例: <ActivityIndicator size="large" />
+    return null;
   }
 
   return (
@@ -90,14 +129,26 @@ export function ManholeMap() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        region={region}
+        initialRegion={region} // 初期表示はinitialRegionを使うのがおすすめ
         onRegionChangeComplete={setRegion}
         showsUserLocation={true}
         showsMyLocationButton={false}
         followsUserLocation={false}
         showsCompass={true}
         showsScale={true}
-      ></MapView>
+      >
+        {akihabaraLocations.map((location) => (
+          <Marker
+            key={location.id}
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            title={location.title}
+            description={location.description}
+          />
+        ))}
+      </MapView>
       <TouchableOpacity
         style={styles.currentLocationButton}
         onPress={moveToCurrentLocation}
