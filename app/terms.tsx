@@ -10,7 +10,7 @@ export default function TermsScreen() {
       <Stack.Screen
         options={{
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity onPress={() => router.replace("/(tabs)/profile")}>
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
           ),
@@ -29,12 +29,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
+    marginBottom: 16,
   },
   content: {
     fontSize: 16,

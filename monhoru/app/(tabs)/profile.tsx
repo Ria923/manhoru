@@ -33,7 +33,7 @@ export default function ProfileScreen() {
           <View style={styles.profileTextContainer}>
             <ThemedText type="title">チョーニャンリン</ThemedText>
             <Text style={styles.emailText}>メール: 24aw0113@gmail.com</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/profile_edit")}>
               <Text style={styles.editProfileText}>プロフィール編集</Text>
             </TouchableOpacity>
           </View>
@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#333",
     marginBottom: 10,
   },
   statValue: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#333",
   },
