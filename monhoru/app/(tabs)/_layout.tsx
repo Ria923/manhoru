@@ -32,12 +32,12 @@ export default function TabLayout() {
           </View>
           <TouchableOpacity
             style={styles.notificationButton}
-            onPress={() => router.push("/notice")}
+            onPress={() => router.push("../../notice")}
             hitSlop={10}
           >
             <Image
               source={require("@/assets/icons/notification.png")}
-              style={{ width: 40, height: 40 }}
+              style={{ width: 55, height: 55 }}
               resizeMode="contain"
             />
           </TouchableOpacity>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   notificationButton: {
     position: "absolute",
-    top: 40,
+    top: 50,
     right: 16,
     zIndex: 10,
     backgroundColor: "transparent",
