@@ -18,13 +18,6 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.header}>
-          <Image
-            source={require("@/assets/images/splash-icon.png")}
-            style={styles.logo}
-          />
-        </View>
-
         <View style={styles.profileSection}>
           <Image
             source={require("@/assets/images/icon.png")}
@@ -33,7 +26,7 @@ export default function ProfileScreen() {
           <View style={styles.profileTextContainer}>
             <ThemedText type="title">チョーニャンリン</ThemedText>
             <Text style={styles.emailText}>メール: 24aw0113@gmail.com</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/profile_edit")}>
               <Text style={styles.editProfileText}>プロフィール編集</Text>
             </TouchableOpacity>
           </View>
@@ -71,24 +64,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-  },
-  logo: {
-    width: 100,
-    height: 30,
-    resizeMode: "contain",
-  },
-
   profileSection: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 30,
-    marginTop: 20,
+    marginTop: 60,
   },
   profileImage: {
     width: 100,
@@ -122,12 +102,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statLabel: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#333",
     marginBottom: 10,
   },
   statValue: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#333",
   },
