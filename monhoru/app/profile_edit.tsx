@@ -70,7 +70,7 @@ import {
       height: 120,
       borderRadius: 60,
 
-      marginBottom: 24,
+      marginBottom: 34,
     },
     content: {
       fontSize: 16,

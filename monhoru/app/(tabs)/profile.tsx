@@ -18,13 +18,6 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.header}>
-          <Image
-            source={require("@/assets/images/splash-icon.png")}
-            style={styles.logo}
-          />
-        </View>
-
         <View style={styles.profileSection}>
           <Image
             source={require("@/assets/images/icon.png")}
@@ -71,24 +64,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingTop: 20,
-  },
-  logo: {
-    width: 100,
-    height: 30,
-    resizeMode: "contain",
-  },
-
   profileSection: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 30,
-    marginTop: 20,
+    marginTop: 60,
   },
   profileImage: {
     width: 100,
