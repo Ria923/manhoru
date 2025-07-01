@@ -1,20 +1,28 @@
 import React from "react";
-import { StyleSheet, View, Image, Text, ScrollView } from "react-native";
+import { StyleSheet, View, Image, Text, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import articleSampleData from "../../components/NoticeData";
 
 export default function NoticeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <ScrollView contentContainerStyle={styles.content} style={{ backgroundColor: "#fff" }}>
-        <Text style={styles.mainTitle}>イベント | お知らせ</Text>
+      <Text style={styles.mainTitle}>イベント | お知らせ</Text>
+
+      <ScrollView contentContainerStyle={styles.content}>
         {articleSampleData.map((item, idx) => (
-          <View key={idx} style={styles.card}>
+          <Pressable
+            key={idx}
+            style={styles.card}
+            onPress={() => router.push(`/notice/showArticle?id=${item.id}`)}
+          >
             <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
             <View style={styles.overlay}>
-              {/* <Text style={styles.cardTitle}>{item.title}</Text> */}
+              <Text style={styles.cardTitle}>{item.title}</Text>
             </View>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -26,13 +34,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 32,
     backgroundColor: "#fff",
-    marginTop: 60,
+    marginTop: 10,
   },
   mainTitle: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 16,
-    marginTop: 8,
+    marginTop: 50,
     textAlign: "center",
   },
   card: {
@@ -53,13 +61,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(60,60,60,0.35)",
   },
-  // cardTitle: {
-  //   color: "rgba(255, 255, 255, 0.7)",
-  //   fontSize: 26,
-  //   fontWeight: "bold",
-  //   textAlign: "center",
-  //   // backgroundColor: "rgba(255,255,255,0.7)",
-  //   paddingHorizontal: 8,
-  //   borderRadius: 8,
-  // },
+  cardTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingHorizontal: 12,
+    textAlign: "center",
+  },
 });
+
