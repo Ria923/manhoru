@@ -264,9 +264,9 @@ const styles = StyleSheet.create({
   currentLocationButton: {
     position: "absolute",
     right: 15,
-    bottom: Platform.OS === 'ios' ? 60 : 40,
+    bottom: Platform.OS === 'ios' ? 100 : 40,
     zIndex: 10,
-    backgroundColor: 'white',
+
     borderRadius: 30,
     padding: 2,
     shadowColor: '#000',
