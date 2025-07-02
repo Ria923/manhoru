@@ -1,5 +1,6 @@
 import { View, Image, StyleSheet, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import { useRouter, Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons"; // ← これを追加
 import sampleData from "../../components/SampleData";
 
 const numColumns = 3;
@@ -16,7 +17,12 @@ export default function GalleryAllScreen() {
       <Stack.Screen
         options={{
           title: "すべての画像",
-          headerBackTitle: "戻る",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+
         }}
       />
 

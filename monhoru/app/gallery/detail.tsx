@@ -1,11 +1,13 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import { View, Text, Image } from "react-native";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import sampleData from "../../components/SampleData";
 
 export default function DetailScreen() {
   const { idx } = useLocalSearchParams();
   const index = Number(Array.isArray(idx) ? idx[0] : idx);
   const data = sampleData[index];
+  const router = useRouter();
 
   if (!data) {
     return (
@@ -20,7 +22,11 @@ export default function DetailScreen() {
       <Stack.Screen
         options={{
           title: "マンホール詳細",
-          headerBackTitle: "戻る",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <View style={{ flex: 1, padding: 24 }}>
