@@ -10,7 +10,12 @@ export default function TabLayout() {
   const colorScheme = useColorScheme(); // 現在のカラースキーム（未使用だがテーマ制御に使える）
 
   const pathname = usePathname(); // 現在のフルパス（例: /upload/postform）
-  const hiddenLogoPages = ["/upload/postform", "/upload/preview", "/Upload"];
+  const hiddenLogoPages = [
+    "/upload/postform",
+    "/upload/preview",
+    "/Upload",
+    "/profile",
+  ];
   const shouldHideLogo = hiddenLogoPages.includes(pathname); // ロゴ非表示対象かどうか
 
   return (
@@ -115,7 +120,6 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen name="notice" options={{ href: null }} />
-        <Tabs.Screen name="explore" options={{ href: null }} />
       </Tabs>
     </View>
   );

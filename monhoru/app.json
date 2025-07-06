@@ -16,6 +16,9 @@
         "NSCameraUsageDescription": "このアプリはカメラを使用します",
         "NSPhotoLibraryUsageDescription": "このアプリは写真ライブラリにアクセスします",
         "NSLocationWhenInUseUsageDescription": "あなたの現在地を使って地域情報を表示します"
+      },
+      "NSAppTransportSecurity": {
+        "NSAllowsArbitraryLoads": true
       }
     },
     "android": {
@@ -35,6 +38,9 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "packagerOpts": {
+      "hostType": "localhost"
+    },
     "plugins": [
       "expo-router",
       "@react-native-google-signin/google-signin",
@@ -53,7 +59,8 @@
           "cameraPermission": "カメラの使用を許可しますか？",
           "photosPermission": "写真ライブラリへのアクセスを許可しますか？"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
