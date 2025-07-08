@@ -14,7 +14,6 @@ import {
 } from "react-native";
 import Swiper from "react-native-swiper";
 import { slides } from "@/data/slidesData";
-
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
 const router = useRouter();
