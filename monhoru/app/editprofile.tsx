@@ -9,12 +9,13 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter, useNavigation, Stack } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import KeyboardDismissWrapper from "@/components/KeyboardDismissWrapper";
 import * as FileSystem from "expo-file-system";
 import { Buffer } from "buffer";
 import { decode } from "base64-arraybuffer";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function EditProfileScreen() {
   const [name, setName] = useState("");
@@ -23,9 +24,9 @@ export default function EditProfileScreen() {
   const router = useRouter();
   const navigation = useNavigation();
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({ headerShown: false });
+  // }, [navigation]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -169,6 +170,16 @@ export default function EditProfileScreen() {
 
   return (
     <KeyboardDismissWrapper>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerTitle: "",
+        }}
+      />
       <View style={styles.container}>
         <TouchableOpacity style={styles.avatar} onPress={pickImage}>
           {avatar ? (

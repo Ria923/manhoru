@@ -14,7 +14,7 @@ export default function TabLayout() {
   const currentRoute = segments[segments.length - 1] ?? ""; // 最後の要素が現在のページ名
 
   // 非表示にしたいページ名を配列で管理
-  const hiddenHeaderPages = ["Upload", "notice", "profile", "terms"]; // Upload と notice と profile と terms を非表示
+  const hiddenHeaderPages = ["Upload", "notice", "profile", "terms", "editprofile"]; // Upload と notice と profile と terms と editprofile を非表示
 
   const shouldHideHeader = hiddenHeaderPages.includes(currentRoute);
 

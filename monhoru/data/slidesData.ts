@@ -36,7 +36,7 @@ export const slides = [
     cloudTextBottom: "",
     title2: "見つけたマンホールをみんなにシェア！",
     description:
-      "お気に入りの1枚を投稿して、全国の仲間とつながろう。コメントや「いいね」も楽しめるよ！",
+      "お気に入りの1枚を投稿して、全国の仲間とつながろう！",
     image: require("@/assets/onboarding/char3.png"),
     imageStyle: {
       height: 480,
