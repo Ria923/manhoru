@@ -18,7 +18,6 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="userlogin" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="profile_edit" options={{ headerShown: true }} />
         <Stack.Screen name="terms" options={{ headerShown: true }} />
         <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>

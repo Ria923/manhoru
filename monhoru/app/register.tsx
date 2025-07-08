@@ -121,19 +121,22 @@ function RegisterScreen() {
         avatar_url: avatarUrl,
       });
 
-      const { error: insertError } = await supabase.from("users").insert([
-        {
-          id: session.data.session?.user.id,
-          name,
-          email,
-          avatar_url: avatarUrl,
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      const { error: upsertError } = await supabase.from("users").upsert(
+        [
+          {
+            id: session.data.session?.user.id,
+            name,
+            email,
+            avatar_url: avatarUrl,
+            created_at: new Date().toISOString(),
+          },
+        ],
+        { onConflict: "id" }
+      );
 
-      if (insertError) {
-        console.error("Supabase insert error", insertError);
-        Alert.alert("登録失敗", insertError.message || "未知のエラー");
+      if (upsertError) {
+        console.error("Supabase upsert error", upsertError);
+        Alert.alert("登録失敗", upsertError.message || "未知のエラー");
         return;
       }
 

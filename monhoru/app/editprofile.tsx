@@ -15,6 +15,7 @@ import KeyboardDismissWrapper from "@/components/KeyboardDismissWrapper";
 import * as FileSystem from "expo-file-system";
 import { Buffer } from "buffer";
 import { decode } from "base64-arraybuffer";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 export default function EditProfileScreen() {
   const [name, setName] = useState("");
@@ -172,7 +173,8 @@ export default function EditProfileScreen() {
       <View style={styles.container}>
         <TouchableOpacity style={styles.avatar} onPress={pickImage}>
           {avatar ? (
-            <Image
+            <Animated.Image
+              entering={FadeIn.duration(400)}
               source={{ uri: avatar?.uri ?? "" }}
               style={styles.avatarImage}
             />
