@@ -142,7 +142,6 @@ export default function TabLayout() {
 
         {/* タブには表示しないが、内部遷移では使用される画面 */}
         <Tabs.Screen name="notice" options={{ href: null }} />
-        <Tabs.Screen name="explore" options={{ href: null }} />
       </Tabs>
     </View>
   );
