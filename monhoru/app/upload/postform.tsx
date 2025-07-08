@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Image,
@@ -7,53 +7,19 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Dimensions,
 } from "react-native";
 import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as Location from "expo-location";
 import KeyboardDismissWrapper from "@/components/KeyboardDismissWrapper";
 
+const { width } = Dimensions.get("window");
+
 export default function PostFormScreen() {
-  const { uri } = useLocalSearchParams();
+  const { uri, title, memo, date, address } = useLocalSearchParams();
   const router = useRouter();
-  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [address, setAddress] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("エラー", "位置情報の許可がありません");
-        return;
-      }
-
-      try {
-        const location = await Location.getCurrentPositionAsync({});
-        const geocode = await Location.reverseGeocodeAsync({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        });
-
-        if (geocode.length > 0) {
-          const place = geocode[0];
-          const fullAddress = `${place.region ?? ""}${place.city ?? ""}`;
-          setAddress(fullAddress);
-        } else {
-          Alert.alert("エラー", "住所情報が見つかりませんでした");
-        }
-      } catch (error) {
-        console.log("位置取得エラー", error);
-        Alert.alert("エラー", "位置情報の取得に失敗しました");
-      }
-    })();
-  }, []);
-
-  const today = new Date();
-  const todayText = `${today.getFullYear()}/${
-    today.getMonth() + 1
-  }/${today.getDate()}`;
 
   const handleSubmit = () => {
     if (!title || !description) {
@@ -75,33 +41,56 @@ export default function PostFormScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      {/* Stack.Screen でヘッダーをカスタマイズ */}
+      <Stack.Screen
+        options={{
+          headerShown: true, // ヘッダーを表示
+          headerTitle: "詳細の確認", // 適切なタイトルを設定
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          headerStyle: {
+            backgroundColor: '#fff', // ヘッダーの背景色を設定 (任意)
+          },
+          headerTitleStyle: {
+            fontWeight: 'bold', // ヘッダータイトルのスタイル (任意)
+          },
+        }}
+      />
       <KeyboardDismissWrapper>
+        {/* SafeAreaView はコンテンツの安全領域を確保するために残します */}
         <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-          <TouchableOpacity
+          {/* 古いbackButtonは削除またはコメントアウト */}
+          {/* <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
             <Ionicons name="chevron-back" size={28} color="#000" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <View style={styles.container}>
             <View style={styles.imageWrapper}>
-              <Image source={{ uri }} style={styles.image} />
+              <Image source={{ uri: uri as string }} style={styles.image} />
             </View>
 
-            <Text style={styles.addText}>{address || "取得中..."}</Text>
+            <View style={styles.infoGroup}>
+              <Text style={styles.addText}>{title || "タイトル未入力"}</Text>
+              <Text style={styles.bodyText}>{memo || "メモ未入力"}</Text>
 
-            <TextInput
-              style={[styles.input, { height: 100 }]}
-              placeholder="説明文を入力"
-              placeholderTextColor="#888"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-            />
-
-            <Text style={styles.dateText}>日付: {todayText}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                  width: "100%",
+                }}
+              >
+                <Text style={styles.dateText}>{date}</Text>
+                <Text style={styles.dateText}>{address}</Text>
+              </View>
+            </View>
 
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>投稿する</Text>
@@ -119,28 +108,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     alignItems: "center",
-    marginTop: 40,
+    // ヘッダーが表示されるため、marginTopを調整または削除
+    marginTop: 0, // ヘッダーがある場合は通常0でOK
   },
-  backButton: {
-    position: "absolute",
-    top: 70,
-    left: 20,
-    zIndex: 10,
-    padding: 8,
-  },
+  // Stack.Screenでヘッダーを制御するため、このスタイルは不要
+  // backButton: {
+  //   position: "absolute",
+  //   top: 70,
+  //   left: 20,
+  //   zIndex: 10,
+  //   padding: 8,
+  // },
   imageWrapper: {
-    width: "85%",
-    height: 358,
-    marginBottom: 20,
+    width: width * 0.7,
+    height: width * 0.7,
+    backgroundColor: "#F0F0F0",
     borderRadius: 15,
-    borderColor: "#F0E685",
-    borderWidth: 4,
+    borderWidth: 2,
+    borderColor: "#A9D0F5",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    marginBottom: 20,
   },
   image: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
-    borderRadius: 12,
+    borderRadius: 15,
   },
   input: {
     width: "100%",
@@ -172,8 +167,8 @@ const styles = StyleSheet.create({
   },
   dateText: {
     textAlign: "left",
-    fontSize: 16,
-    alignSelf: "flex-start",
+    fontSize: 13,
+    color: "#888",
   },
   addText: {
     textAlign: "left",
@@ -181,5 +176,22 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontWeight: "bold",
     alignSelf: "flex-start",
+    width: "100%",
+  },
+  label: { fontSize: 16, marginBottom: 10 },
+  bodyText: {
+    textAlign: "left",
+    fontSize: 16,
+    marginBottom: 18,
+    color: "#333",
+    alignSelf: "flex-start",
+    lineHeight: 22,
+    width: "100%",
+  },
+  infoGroup: {
+    width: "100%",
+    flexDirection: "column",
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
 });

@@ -171,17 +171,15 @@ export default function GalleryScreen() {
       Alert.alert("エラー", "画像をアップロードしてください。");
       return;
     }
-    /*
-     * 【修正点2】 ルーティングのパスを修正
-     * Expo Routerのファイルベースルーティングに基づき、
-     * `app/upload/postform.tsx` というファイル構成を想定しています。
-     * この場合、パスは `/upload/postform` となります。
-     * もし `app/postform.tsx` のようにルートに配置している場合は `/postform` となります。
-     * ご自身のファイル構造に合わせてパスを調整してください。
-    */
     router.push({
-      pathname: "/upload/postform", // ← 小文字に修正
-      params: { uri: selectedImage },
+      pathname: "/upload/postform",
+      params: {
+        uri: selectedImage,
+        title: title,
+        memo: memo,
+        date: currentDate,
+        address: address,
+      },
     });
   };
 
@@ -221,27 +219,36 @@ export default function GalleryScreen() {
             )}
           </TouchableOpacity>
 
-          <TextInput
-            style={styles.textInput}
-            placeholder="タイトル"
-            placeholderTextColor="#888"
-            value={title}
-            onChangeText={setTitle}
-          />
+          {/* グループ化されたTextInputとView */}
+          <View style={styles.inputGroup}>
+            <TextInput
+              style={[styles.textInput, styles.groupedTextInput]}
+              placeholder="タイトル"
+              placeholderTextColor="#888"
+              value={title}
+              onChangeText={setTitle}
+            />
 
-          <TextInput
-            style={[styles.textInput, styles.memoInput]}
-            placeholder="メモを入力"
-            placeholderTextColor="#888"
-            value={memo}
-            onChangeText={setMemo}
-            multiline={true}
-            numberOfLines={4}
-          />
+            <TextInput
+              style={[styles.textInput, styles.memoInput, styles.groupedTextInput]}
+              placeholder="メモを入力"
+              placeholderTextColor="#888"
+              value={memo}
+              onChangeText={setMemo}
+              multiline={true}
+              numberOfLines={4}
+            />
 
-          <View style={styles.dateTimeLocationContainer}>
-            <Text style={styles.dateTimeLocationText}>{currentDate}</Text>
-            <Text style={styles.dateTimeLocationText} numberOfLines={1} ellipsizeMode="tail">{address}</Text>
+            <View style={[styles.dateTimeLocationContainer, styles.groupedDateTimeLocation]}>
+              <Text style={styles.dateText}>{currentDate}</Text>
+              <Text
+                style={styles.addressText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {address}
+              </Text>
+            </View>
           </View>
 
           <TouchableOpacity style={styles.postButton} onPress={handlePost}>
@@ -310,6 +317,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     overflow: "hidden",
     marginBottom: 20,
+    marginTop: 50,
   },
   imagePlaceholder: {
     justifyContent: "center",
@@ -323,6 +331,13 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     borderRadius: 13,
   },
+  // 新しいスタイル：入力フィールドのグループ
+  inputGroup: {
+    width: "100%", // 親要素と同じ幅
+    flexDirection: "column", // 垂直に配置
+    // 横方向のマージンをここで設定
+    paddingHorizontal: 20, // 左右に20ピクセルのマージン
+  },
   textInput: {
     width: "100%",
     backgroundColor: "#F0F0F0",
@@ -335,6 +350,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E0E0E0",
   },
+  groupedTextInput: {
+    // グループ化されたTextInputに特定のスタイルを適用する場合
+    // 例: 幅を親要素に合わせる
+    width: "100%",
+  },
   memoInput: {
     height: 100,
     textAlignVertical: "top",
@@ -346,41 +366,47 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingHorizontal: 5,
   },
-  dateTimeLocationText: {
+  groupedDateTimeLocation: {
+    // グループ化されたDateTimeLocationContainerに特定のスタイルを適用する場合
+    // 例: 幅を親要素に合わせる
+    width: "100%",
+  },
+  dateText: {
     fontSize: 13,
     color: "#888",
-    flex: 1, // 住所が長い場合に省略されるように追加
+    flex: 0,
+  },
+  addressText: {
+    fontSize: 13,
+    color: "#888",
+    flex: 1,
+    textAlign: "right",
   },
   postButton: {
-    width: "80%",
-    backgroundColor: "#FFD700",
+    width: "40%",
+    backgroundColor: "#F0E685",
     borderRadius: 25,
     paddingVertical: 14,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    justifyContent: "center",
   },
   postButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "#333",
+    fontSize: 20,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
   },
   loadingText: {
     color: "#333",
     marginTop: 10,
     fontSize: 16,
+    fontWeight: "bold",
   },
   permissionDeniedContainer: {
     flex: 1,
@@ -401,17 +427,17 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",   // ← ここを "flex-end" から "center" に
+    justifyContent: "center",
     alignItems: "center",
   },
   optionsContainer: {
-    width: "80%",               // 幅を少し狭くして中央感UP（お好みで）
+    width: "80%",
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
-    alignItems: "center",         // 追加または確認
-    justifyContent: "center",     // 追加
-    paddingBottom: 20,            // 必要に応じて調整
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 20,
   },
   optionsTitle: {
     fontSize: 18,
