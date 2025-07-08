@@ -20,7 +20,7 @@ export default function TermsScreen() {
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
           ),
-          headerTitle: "利用規約",
+          headerTitle: "",
         }}
       />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>

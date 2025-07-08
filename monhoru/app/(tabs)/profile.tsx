@@ -71,30 +71,32 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.profileSection}>
-          <Image
-            source={{ uri: `${avatarUrl}?t=${Date.now()}` }}
-            style={styles.profileImage}
-          />
-          <View style={styles.profileTextContainer}>
-            <ThemedText type="title">{name}</ThemedText>
-            <Text style={styles.emailText}>{email}</Text>
-            <TouchableOpacity onPress={() => router.push("/editprofile")}>
-              <Text style={styles.editProfileText}>プロフィール編集</Text>
-            </TouchableOpacity>
+        <View style={styles.contentContainer}>
+          <View style={styles.profileSection}>
+            <Image
+              source={{ uri: `${avatarUrl}?t=${Date.now()}` }}
+              style={styles.profileImage}
+            />
+            <View style={styles.profileTextContainer}>
+              <ThemedText type="title">{name}</ThemedText>
+              <Text style={styles.emailText}>{email}</Text>
+              <TouchableOpacity onPress={() => router.push("/editprofile")}>
+                <Text style={styles.editProfileText}>プロフィール編集</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>集めたマンホール</Text>
-            <Text style={styles.statValue}>13</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>初めてのプレイ日</Text>
-            <Text style={styles.statDate}>
-              {new Date(user?.created_at ?? "").toLocaleDateString("ja-JP")}
-            </Text>
+          <View style={styles.statsContainer}>
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>集めたマンホール</Text>
+              <Text style={styles.statValue}>13</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statLabel}>初めてのプレイ日</Text>
+              <Text style={styles.statDate}>
+                {new Date(user?.created_at ?? "").toLocaleDateString("ja-JP")}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -119,6 +121,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
     paddingTop: 60,
+    justifyContent: "space-between",
+  },
+  contentContainer: {
+    flex: 1,
   },
   header: {
     flexDirection: "row",
@@ -188,6 +194,7 @@ const styles = StyleSheet.create({
   },
   footerLinks: {
     alignItems: "center",
+    marginBottom: 85,
   },
   footerLinkText: {
     fontSize: 16,

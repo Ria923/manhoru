@@ -27,7 +27,7 @@ export default function UserLoginScreen() {
     if (error) {
       Alert.alert("ログイン失敗", error.message);
     } else {
-      Alert.alert("ログイン成功", "お帰りなざい！");
+      Alert.alert("ログイン成功", "お帰りなさい！");
       router.replace("/");
     }
   };
