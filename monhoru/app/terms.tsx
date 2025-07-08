@@ -24,7 +24,6 @@ export default function TermsScreen() {
         }}
       />
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>
-        <Text style={styles.title}>利用規約</Text>
         <View style={styles.contentContainer}>
           <Text style={styles.subtitle}>マンホール利用規約</Text>
           <Text style={styles.content}>
