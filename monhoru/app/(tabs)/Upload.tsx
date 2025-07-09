@@ -11,18 +11,18 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
-// useSafeAreaInsetsをインポート
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
-// Asset型の定義（変更なし）
 type Asset = {
   id: string;
   uri: string;
@@ -38,10 +38,8 @@ export default function GalleryScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showImageOptions, setShowImageOptions] = useState<boolean>(false);
   const router = useRouter();
-  // SafeAreaのインセット（特に下の部分）を取得
   const insets = useSafeAreaInsets();
 
-  // 初回：アクセス権限、日付、位置情報の設定
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -100,7 +98,6 @@ export default function GalleryScreen() {
     setCurrentDate(`${year}/${month}/${day}`);
   }, []);
 
-  // カメラを起動
   const openCamera = async () => {
     setShowImageOptions(false);
     if (!hasPermission) {
@@ -127,7 +124,6 @@ export default function GalleryScreen() {
     }
   };
 
-  // 画像ライブラリから選択
   const pickImageFromLibrary = async () => {
     setShowImageOptions(false);
     if (!hasPermission) {
@@ -136,9 +132,8 @@ export default function GalleryScreen() {
     }
     setLoading(true);
     try {
-      //【修正点1】 mediaTypesの指定方法を新しい形式に変更
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images, // ← ここを修正
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: false,
         quality: 1,
       });
@@ -165,7 +160,6 @@ export default function GalleryScreen() {
     setShowImageOptions(true);
   };
 
-  // 投稿処理
   const handlePost = () => {
     if (!selectedImage) {
       Alert.alert("エラー", "画像をアップロードしてください。");
@@ -204,62 +198,64 @@ export default function GalleryScreen() {
 
   return (
     <SafeAreaView style={styles.outerContainer} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.cardContainer}>
-          <TouchableOpacity
-            style={styles.imageInputArea}
-            onPress={handleImageInputAreaPress}
-          >
-            {selectedImage ? (
-              <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Ionicons name="add" size={48} color="#000" />
+      <KeyboardAvoidingView
+        behavior="position"
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={-180} 
+      >
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.cardContainer}>
+            <TouchableOpacity
+              style={styles.imageInputArea}
+              onPress={handleImageInputAreaPress}
+            >
+              {selectedImage ? (
+                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+              ) : (
+                <View style={styles.imagePlaceholder}>
+                  <Ionicons name="add" size={48} color="#000" />
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <View style={styles.inputGroup}>
+              <TextInput
+                style={[styles.textInput, styles.groupedTextInput]}
+                placeholder="タイトル"
+                placeholderTextColor="#888"
+                value={title}
+                onChangeText={setTitle}
+              />
+              <TextInput
+                style={[styles.textInput, styles.memoInput, styles.groupedTextInput]}
+                placeholder="メモを入力"
+                placeholderTextColor="#888"
+                value={memo}
+                onChangeText={setMemo}
+                multiline={true}
+                numberOfLines={4}
+              />
+              <View style={[styles.dateTimeLocationContainer, styles.groupedDateTimeLocation]}>
+                <Text style={styles.dateText}>{currentDate}</Text>
+                <Text
+                  style={styles.addressText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {address}
+                </Text>
               </View>
-            )}
-          </TouchableOpacity>
-
-          {/* グループ化されたTextInputとView */}
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={[styles.textInput, styles.groupedTextInput]}
-              placeholder="タイトル"
-              placeholderTextColor="#888"
-              value={title}
-              onChangeText={setTitle}
-            />
-
-            <TextInput
-              style={[styles.textInput, styles.memoInput, styles.groupedTextInput]}
-              placeholder="メモを入力"
-              placeholderTextColor="#888"
-              value={memo}
-              onChangeText={setMemo}
-              multiline={true}
-              numberOfLines={4}
-            />
-
-            <View style={[styles.dateTimeLocationContainer, styles.groupedDateTimeLocation]}>
-              <Text style={styles.dateText}>{currentDate}</Text>
-              <Text
-                style={styles.addressText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {address}
-              </Text>
             </View>
+
+            <TouchableOpacity style={styles.postButton} onPress={handlePost}>
+              <Text style={styles.postButtonText}>次へ</Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.postButton} onPress={handlePost}>
-            <Text style={styles.postButtonText}>投稿する</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
+        </ScrollView>
+      </KeyboardAvoidingView>
+      
       {showImageOptions && (
         <TouchableWithoutFeedback onPress={() => setShowImageOptions(false)}>
-          {/* 【修正点3】 optionsContainerのスタイルを動的に設定 */}
           <View style={styles.optionsOverlay}>
             <View style={[styles.optionsContainer, { paddingBottom: insets.bottom }]}>
               <Text style={styles.optionsTitle}>写真を選ぶ</Text>
@@ -285,7 +281,6 @@ export default function GalleryScreen() {
   );
 }
 
-// スタイル定義（一部修正）
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
@@ -331,12 +326,10 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     borderRadius: 13,
   },
-  // 新しいスタイル：入力フィールドのグループ
   inputGroup: {
-    width: "100%", // 親要素と同じ幅
-    flexDirection: "column", // 垂直に配置
-    // 横方向のマージンをここで設定
-    paddingHorizontal: 20, // 左右に20ピクセルのマージン
+    width: "100%",
+    flexDirection: "column",
+    paddingHorizontal: 20,
   },
   textInput: {
     width: "100%",
@@ -351,8 +344,6 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
   },
   groupedTextInput: {
-    // グループ化されたTextInputに特定のスタイルを適用する場合
-    // 例: 幅を親要素に合わせる
     width: "100%",
   },
   memoInput: {
@@ -367,8 +358,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   groupedDateTimeLocation: {
-    // グループ化されたDateTimeLocationContainerに特定のスタイルを適用する場合
-    // 例: 幅を親要素に合わせる
     width: "100%",
   },
   dateText: {
