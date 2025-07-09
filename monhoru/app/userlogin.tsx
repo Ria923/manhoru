@@ -9,12 +9,12 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  // KeyboardDismissWrapperの代わりに追加
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
+import { Ionicons } from "@expo/vector-icons"; // ◀◀◀ Ioniconsをインポート
 
 export default function UserLoginScreen() {
   const [email, setEmail] = useState("");
@@ -41,13 +41,18 @@ export default function UserLoginScreen() {
   };
 
   return (
-    // ここで直接KeyboardDismissの機能を持たせる
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
         <View style={styles.container}>
+          {/* ▼▼▼ Ioniconsを使った戻るボタンに変更 ▼▼▼ */}
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={32} color="white" />
+          </TouchableOpacity>
+          {/* ▲▲▲ 変更ここまで ▲▲▲ */}
+
           <View>
             <Text style={styles.loginMessage}>\ お帰りなさい！ / </Text>
           </View>
@@ -91,6 +96,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  backButton: {
+    position: 'absolute',
+    top: 80,
+    left: 20,
+    zIndex: 1,
+  },
+  // backButtonTextスタイルは不要になったため削除
   input: {
     backgroundColor: "#fff",
     padding: 10,
@@ -126,6 +138,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     bottom: 20,
     alignSelf: "center",
-    fontWeight: "bold",
   },
 });
