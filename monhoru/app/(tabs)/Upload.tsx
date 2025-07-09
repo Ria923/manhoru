@@ -74,8 +74,7 @@ export default function GalleryScreen() {
 
           if (geocode.length > 0) {
             const place = geocode[0];
-            const fullAddress = `${place.region ?? ""}${place.city ?? ""}
-            }`;
+            const fullAddress = `${place.region ?? ""}${place.city ?? ""}`;
             setAddress(fullAddress || "住所情報が見つかりませんでした");
           } else {
             Alert.alert("エラー", "住所情報が見つかりませんでした");
