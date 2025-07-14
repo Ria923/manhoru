@@ -64,7 +64,7 @@ export default function ProfileScreen() {
       console.error("ログアウト失敗", error);
       alert("ログアウトに失敗しました");
     } else {
-      router.replace("/onboarding");
+      router.replace("/onboarding"); // ← 這行要加！
     }
   };
 
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   footerLinkText: {
     fontSize: 16,
-    color: "#333",
+    color: "#908C8C",
     marginBottom: 30,
   },
 });

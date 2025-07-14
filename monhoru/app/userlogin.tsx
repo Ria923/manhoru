@@ -18,6 +18,17 @@ export default function UserLoginScreen() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.replace("/");
+      }
+    };
+
+    checkSession();
+  }, []);
+
   const handleLogin = async () => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
