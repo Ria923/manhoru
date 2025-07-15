@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,18 +7,26 @@ import {
   Image,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
-import { useRouter, useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
-import KeyboardDismissWrapper from "@/components/KeyboardDismissWrapper";
+import { Ionicons } from "@expo/vector-icons"; // ◀◀◀ Ioniconsをインポート
 
 export default function UserLoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("入力エラー", "メールアドレスとパスワードを入力してください。");
+      return;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -33,49 +41,74 @@ export default function UserLoginScreen() {
   };
 
   return (
-    <KeyboardDismissWrapper>
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.loginMessage}>\ お帰りなさい！ / </Text>
-        </View>
-        <Image
-          source={require("@/assets/onboarding/character.login-center.png")}
-          style={styles.character2}
-        />
-        <View style={styles.logingroup}>
-          <TextInput
-            placeholder="メールアドレス"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <TextInput
-            placeholder="パスワード"
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginText}>ログイン</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingContainer}
+      >
+        <View style={styles.container}>
+          {/* ▼▼▼ Ioniconsを使った戻るボタンに変更 ▼▼▼ */}
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={32} color="white" />
           </TouchableOpacity>
+          {/* ▲▲▲ 変更ここまで ▲▲▲ */}
+
+          <View>
+            <Text style={styles.loginMessage}>\ お帰りなさい！ / </Text>
+          </View>
+          <Image
+            source={require("@/assets/onboarding/character.login-center.png")}
+            style={styles.character2}
+          />
+          <View style={styles.logingroup}>
+            <TextInput
+              placeholder="メールアドレス"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <TextInput
+              placeholder="パスワード"
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              <Text style={styles.loginText}>ログイン</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </KeyboardDismissWrapper>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
+  keyboardAvoidingContainer: {
     flex: 1,
     backgroundColor: "#739AD1",
+  },
+  container: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
+  backButton: {
+    position: 'absolute',
+    top: 80,
+    left: 20,
+    zIndex: 1,
+  },
+  // backButtonTextスタイルは不要になったため削除
   input: {
     backgroundColor: "#fff",
     padding: 10,
     marginVertical: 8,
     borderRadius: 5,
+    width: "100%",
   },
   loginButton: {
     backgroundColor: "#F0E685",
@@ -97,6 +130,7 @@ const styles = StyleSheet.create({
     width: 250,
     bottom: 10,
     alignSelf: "center",
+    alignItems: "center",
   },
   loginMessage: {
     fontSize: 20,
