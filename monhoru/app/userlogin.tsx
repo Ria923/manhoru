@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -34,7 +34,10 @@ export default function UserLoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("入力エラー", "メールアドレスとパスワードを入力してください。");
+      Alert.alert(
+        "入力エラー",
+        "メールアドレスとパスワードを入力してください。"
+      );
       return;
     }
 
@@ -59,7 +62,10 @@ export default function UserLoginScreen() {
       >
         <View style={styles.container}>
           {/* ▼▼▼ Ioniconsを使った戻るボタンに変更 ▼▼▼ */}
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
             <Ionicons name="chevron-back" size={32} color="white" />
           </TouchableOpacity>
           {/* ▲▲▲ 変更ここまで ▲▲▲ */}
@@ -108,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 80,
     left: 20,
     zIndex: 1,
