@@ -21,6 +21,17 @@ export default function UserLoginScreen() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.replace("/");
+      }
+    };
+
+    checkSession();
+  }, []);
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("入力エラー", "メールアドレスとパスワードを入力してください。");

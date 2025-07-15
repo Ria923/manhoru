@@ -1,20 +1,43 @@
 import { Tabs, useRouter, useSegments } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Image, View, StyleSheet, TouchableOpacity } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab"; // タブを押したときの触感効果を追加するカスタムボタン
 import TabBarBackground from "@/components/ui/TabBarBackground"; // タブバーの背景デザイン（カスタム）
 import { useColorScheme } from "@/hooks/useColorScheme"; // カラースキーム（ライト・ダークモード）取得用
+import { supabase } from "@/lib/supabase";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme(); // 現在のカラースキーム（未使用だがテーマ制御に使える）
   const router = useRouter(); // ← これを追加
-
   const segments = useSegments(); // 現在の画面パス情報を取得（例: ["(tabs)", "upload"]）
+
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        router.replace("/onboarding");
+      } else {
+        setIsReady(true);
+      }
+    };
+    checkSession();
+  }, []);
+
+  if (!isReady) return null;
+
   const currentRoute = segments[segments.length - 1] ?? ""; // 最後の要素が現在のページ名
 
   // 非表示にしたいページ名を配列で管理
-  const hiddenHeaderPages = ["Upload", "notice", "profile", "terms", "editprofile"]; // Upload と notice と profile と terms と editprofile を非表示
+  const hiddenHeaderPages = [
+    "Upload",
+    "notice",
+    "profile",
+    "terms",
+    "editprofile",
+  ]; // Upload と notice と profile と terms と editprofile を非表示
 
   const shouldHideHeader = hiddenHeaderPages.includes(currentRoute);
 

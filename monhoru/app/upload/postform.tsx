@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
+import { supabase } from "@/lib/supabase";
 import {
   View,
   Image,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -13,22 +13,89 @@ import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import KeyboardDismissWrapper from "@/components/KeyboardDismissWrapper";
+import * as FileSystem from "expo-file-system";
+import { decode } from "base64-arraybuffer";
 
 const { width } = Dimensions.get("window");
 
 export default function PostFormScreen() {
   const { uri, title, memo, date, address } = useLocalSearchParams();
   const router = useRouter();
-  const [description, setDescription] = useState("");
 
-  const handleSubmit = () => {
-    if (!title || !description) {
-      Alert.alert("入力不足", "説明を入力してください");
+  const handleSubmit = async () => {
+    if (!title) {
+      Alert.alert("入力不足", "タイトルを入力してください");
       return;
     }
 
-    Alert.alert("投稿完了", "投稿が完了しました！");
-    router.replace("/");
+    const { data: session, error: sessionError } =
+      await supabase.auth.getSession();
+    const user = session?.session?.user;
+
+    if (!user) {
+      Alert.alert("ログインエラー", "ユーザー情報を取得できませんでした");
+      return;
+    }
+
+    const fileExt = (uri as string).split(".").pop() || "jpg";
+    const userId = user?.id?.toString?.(); // 防止 undefined 錯誤
+    if (!userId) {
+      Alert.alert("エラー", "ユーザーIDが見つかりませんでした");
+      return;
+    }
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    console.log(" user.id:", userId);
+    console.log(" uploading to:", fileName);
+
+    try {
+      // base64 → arrayBuffer → upload
+
+      const base64 = await FileSystem.readAsStringAsync(uri as string, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const arrayBuffer = decode(base64);
+
+      const { error: uploadError } = await supabase.storage
+        .from("posts")
+        .upload(fileName, arrayBuffer, {
+          contentType: `image/${fileExt}`,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("画像アップロードエラー:", uploadError);
+        Alert.alert("画像アップロード失敗", uploadError.message);
+        return;
+      }
+
+      // 拿到 public URL
+      const { data: publicUrlData } = supabase.storage
+        .from("posts")
+        .getPublicUrl(fileName);
+
+      const { error: insertError } = await supabase.from("posts").insert([
+        {
+          user_id: user.id,
+          title: title,
+          memo: memo,
+          image_url: publicUrlData.publicUrl,
+          date: date,
+          address: address,
+        },
+      ]);
+
+      if (insertError) {
+        console.error("投稿エラー:", insertError);
+        Alert.alert("投稿失敗", insertError.message);
+        return;
+      }
+
+      Alert.alert("投稿完了", "投稿が完了しました！");
+      router.replace("/");
+    } catch (error) {
+      console.error("投稿処理中の例外:", error);
+      Alert.alert("エラー", "投稿中に問題が発生しました");
+    }
   };
 
   if (!uri || typeof uri !== "string") {
@@ -47,15 +114,18 @@ export default function PostFormScreen() {
           headerShown: true, // ヘッダーを表示
           headerTitle: "詳細の確認", // 適切なタイトルを設定
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ marginLeft: 10 }}
+            >
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
           ),
           headerStyle: {
-            backgroundColor: '#fff', // ヘッダーの背景色を設定 (任意)
+            backgroundColor: "#fff", // ヘッダーの背景色を設定 (任意)
           },
           headerTitleStyle: {
-            fontWeight: 'bold', // ヘッダータイトルのスタイル (任意)
+            fontWeight: "bold", // ヘッダータイトルのスタイル (任意)
           },
         }}
       />
