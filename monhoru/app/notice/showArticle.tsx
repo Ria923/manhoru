@@ -1,12 +1,15 @@
 import React from "react";
-import { View, Text, ScrollView, Image, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Stack } from "expo-router";
 import articleSampleData from "../../components/NoticeData";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ShowArticleScreen() {
   const { id } = useLocalSearchParams();
   const article = articleSampleData.find(item => item.id === Number(id));
+  const navigation = useNavigation();
 
   if (!article) {
     return (
@@ -18,11 +21,15 @@ export default function ShowArticleScreen() {
 
   return (
     <>
-      {/* 画面タイトルを明示的に指定 */}
       <Stack.Screen
         options={{
-          title: "", // ← 好きなタイトルに変更できます
-          headerBackTitle: "戻る",
+          title: "", // You can change this title
+          // headerBackTitleVisible: false, // <-- REMOVE THIS LINE
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10 }}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
         }}
       />
 
