@@ -17,8 +17,12 @@ import {
 import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
+import * as ImageManipulator from "expo-image-manipulator";
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
@@ -37,6 +41,8 @@ export default function GalleryScreen() {
   const [address, setAddress] = useState<string>("位置情報取得中...");
   const [loading, setLoading] = useState<boolean>(false);
   const [showImageOptions, setShowImageOptions] = useState<boolean>(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -67,6 +73,8 @@ export default function GalleryScreen() {
       } else {
         try {
           const location = await Location.getCurrentPositionAsync({});
+          setLatitude(location.coords.latitude);
+          setLongitude(location.coords.longitude);
           const geocode = await Location.reverseGeocodeAsync({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -110,13 +118,24 @@ export default function GalleryScreen() {
       });
 
       if (!result.canceled && result.assets?.length > 0) {
-        setSelectedImage(result.assets[0].uri);
+        const compressed = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 1000 } }],
+          {
+            compress: 0.7,
+            format: ImageManipulator.SaveFormat.JPEG,
+          }
+        );
+        setSelectedImage(compressed.uri);
       } else {
         console.log("撮影がキャンセルされました");
       }
     } catch (error) {
       console.error("カメラの起動中にエラーが発生しました:", error);
-      Alert.alert("エラー", "カメラの起動中に問題が発生しました。シミュレータではカメラは使用できません。");
+      Alert.alert(
+        "エラー",
+        "カメラの起動中に問題が発生しました。シミュレータではカメラは使用できません。"
+      );
     } finally {
       setLoading(false);
     }
@@ -137,7 +156,15 @@ export default function GalleryScreen() {
       });
 
       if (!result.canceled && result.assets?.length > 0) {
-        setSelectedImage(result.assets[0].uri);
+        const compressed = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 1000 } }],
+          {
+            compress: 0.7,
+            format: ImageManipulator.SaveFormat.JPEG,
+          }
+        );
+        setSelectedImage(compressed.uri);
       } else {
         console.log("画像の選択がキャンセルされました");
       }
@@ -171,6 +198,8 @@ export default function GalleryScreen() {
         memo: memo,
         date: currentDate,
         address: address,
+        latitude: latitude?.toString() ?? "",
+        longitude: longitude?.toString() ?? "",
       },
     });
   };
@@ -184,7 +213,11 @@ export default function GalleryScreen() {
     );
   }
 
-  if (!hasPermission || address === "位置情報なし" || address === "位置情報取得失敗") {
+  if (
+    !hasPermission ||
+    address === "位置情報なし" ||
+    address === "位置情報取得失敗"
+  ) {
     return (
       <View style={styles.permissionDeniedContainer}>
         <Text style={styles.permissionDeniedText}>
@@ -195,11 +228,14 @@ export default function GalleryScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.outerContainer} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={styles.outerContainer}
+      edges={["top", "left", "right"]}
+    >
       <KeyboardAvoidingView
         behavior="position"
         style={{ flex: 1 }}
-        keyboardVerticalOffset={-180} 
+        keyboardVerticalOffset={-180}
       >
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.cardContainer}>
@@ -208,7 +244,10 @@ export default function GalleryScreen() {
               onPress={handleImageInputAreaPress}
             >
               {selectedImage ? (
-                <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+                <Image
+                  source={{ uri: selectedImage }}
+                  style={styles.selectedImage}
+                />
               ) : (
                 <View style={styles.imagePlaceholder}>
                   <Ionicons name="add" size={48} color="#000" />
@@ -225,7 +264,11 @@ export default function GalleryScreen() {
                 onChangeText={setTitle}
               />
               <TextInput
-                style={[styles.textInput, styles.memoInput, styles.groupedTextInput]}
+                style={[
+                  styles.textInput,
+                  styles.memoInput,
+                  styles.groupedTextInput,
+                ]}
                 placeholder="メモを入力"
                 placeholderTextColor="#888"
                 value={memo}
@@ -233,7 +276,12 @@ export default function GalleryScreen() {
                 multiline={true}
                 numberOfLines={4}
               />
-              <View style={[styles.dateTimeLocationContainer, styles.groupedDateTimeLocation]}>
+              <View
+                style={[
+                  styles.dateTimeLocationContainer,
+                  styles.groupedDateTimeLocation,
+                ]}
+              >
                 <Text style={styles.dateText}>{currentDate}</Text>
                 <Text
                   style={styles.addressText}
@@ -251,22 +299,36 @@ export default function GalleryScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      
+
       {showImageOptions && (
         <TouchableWithoutFeedback onPress={() => setShowImageOptions(false)}>
           <View style={styles.optionsOverlay}>
-            <View style={[styles.optionsContainer, { paddingBottom: insets.bottom }]}>
+            <View
+              style={[
+                styles.optionsContainer,
+                { paddingBottom: insets.bottom },
+              ]}
+            >
               <Text style={styles.optionsTitle}>写真を選ぶ</Text>
               <View style={styles.optionButtonsContainer}>
-                <TouchableOpacity style={styles.optionButton} onPress={openCamera}>
+                <TouchableOpacity
+                  style={styles.optionButton}
+                  onPress={openCamera}
+                >
                   <Ionicons name="camera-outline" size={40} color="#333" />
                   <Text style={styles.optionButtonText}>カメラ</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.optionButton} onPress={pickImageFromLibrary}>
+                <TouchableOpacity
+                  style={styles.optionButton}
+                  onPress={pickImageFromLibrary}
+                >
                   <Ionicons name="image-outline" size={40} color="#333" />
                   <Text style={styles.optionButtonText}>ライブラリ</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.optionButton} onPress={clearSelectedImage}>
+                <TouchableOpacity
+                  style={styles.optionButton}
+                  onPress={clearSelectedImage}
+                >
                   <Ionicons name="trash-outline" size={40} color="#333" />
                   <Text style={styles.optionButtonText}>削除</Text>
                 </TouchableOpacity>

@@ -31,11 +31,20 @@ export default function DetailScreen() {
       />
       <View style={{ flex: 1, padding: 24 }}>
         <View style={{ alignItems: "center" }}>
-          <Image source={data.image} style={{ width: 300, height: 300, borderRadius: 16 }} />
+          <Image
+            source={data.image}
+            style={{ width: 300, height: 300, borderRadius: 16 }}
+          />
         </View>
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginTop: 16 }}>{data.title}</Text>
-        <Text style={{ fontSize: 12, color: "#555", marginTop: 8 }}>{`投稿日：${data.date}`}</Text>
-        <Text style={{ fontSize: 16, color: "#333", marginTop: 16 }}>{data.memo}</Text>
+        <Text style={{ fontSize: 24, fontWeight: "bold", marginTop: 16 }}>
+          {data.title}
+        </Text>
+        <Text
+          style={{ fontSize: 12, color: "#555", marginTop: 8 }}
+        >{`投稿日：${data.date}`}</Text>
+        <Text style={{ fontSize: 16, color: "#333", marginTop: 16 }}>
+          {data.memo}
+        </Text>
       </View>
     </>
   );

@@ -19,7 +19,8 @@ import { decode } from "base64-arraybuffer";
 const { width } = Dimensions.get("window");
 
 export default function PostFormScreen() {
-  const { uri, title, memo, date, address } = useLocalSearchParams();
+  const { uri, title, memo, date, address, latitude, longitude } =
+    useLocalSearchParams();
   const router = useRouter();
 
   const handleSubmit = async () => {
@@ -73,6 +74,9 @@ export default function PostFormScreen() {
         .from("posts")
         .getPublicUrl(fileName);
 
+      const lat = latitude ? parseFloat(latitude as string) : null;
+      const lng = longitude ? parseFloat(longitude as string) : null;
+
       const { error: insertError } = await supabase.from("posts").insert([
         {
           user_id: user.id,
@@ -81,6 +85,8 @@ export default function PostFormScreen() {
           image_url: publicUrlData.publicUrl,
           date: date,
           address: address,
+          latitude: lat,
+          longitude: lng,
         },
       ]);
 
