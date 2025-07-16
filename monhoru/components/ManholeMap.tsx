@@ -10,6 +10,8 @@ import {
   PanResponder,
   ScrollView,
   Platform,
+  Linking,
+  Alert,
 } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import { ThemedView } from "./ThemedView";
@@ -21,42 +23,168 @@ const akihabaraLocations = [
   {
     id: 1,
     title: "秋葉原駅",
-    description: "JRと日比谷線の駅",
     latitude: 35.69836,
     longitude: 139.77313,
     image: require("@/assets/images/sampleManholeImg/1.jpg"),
+    firstDiscoverer: {
+      name: "大谷翔平",
+      date: "2024.01.22",
+      description: "初見マップへのアクセス、訪問履歴",
+    },
+    otherUsers: [
+      {
+        name: "田中太郎",
+        comment: "とても綺麗なマンホールでした！",
+        date: "2024.01.22",
+        image: require("@/assets/images/sampleManholeImg/2.jpeg"),
+      },
+      {
+        name: "佐藤花子",
+        comment: "デザインが素晴らしいですね",
+        date: "2024.01.21",
+        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
+      },
+      {
+        name: "中村健",
+        comment: "秋葉原らしいデザインで気に入りました",
+        date: "2024.01.20",
+        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
+      },
+      {
+        name: "松本美香",
+        comment: "友達と一緒に撮影しました！",
+        date: "2024.01.19",
+        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
+      },
+    ],
   },
   {
     id: 2,
     title: "神田明神",
-    description: "歴史ある神社",
     latitude: 35.7018,
     longitude: 139.7676,
     image: require("@/assets/images/sampleManholeImg/2.jpeg"),
+    firstDiscoverer: {
+      name: "山田次郎",
+      date: "2024.01.20",
+      description: "神田明神の歴史あるマンホール",
+    },
+    otherUsers: [
+      {
+        name: "鈴木一郎",
+        comment: "歴史を感じるデザインです",
+        date: "2024.01.20",
+        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
+      },
+      {
+        name: "木村さくら",
+        comment: "神田明神のマンホールは特別感があります",
+        date: "2024.01.19",
+        image: require("@/assets/images/sampleManholeImg/6.jpeg"),
+      },
+      {
+        name: "青木雄一",
+        comment: "参拝のついでに発見しました",
+        date: "2024.01.18",
+        image: require("@/assets/images/sampleManholeImg/1.jpg"),
+      },
+    ],
   },
   {
     id: 3,
     title: "ヨドバシAkiba",
-    description: "大型家電量販店",
     latitude: 35.6986,
     longitude: 139.7748,
     image: require("@/assets/images/sampleManholeImg/3.jpeg"),
+    firstDiscoverer: {
+      name: "高橋美咲",
+      date: "2024.01.19",
+      description: "ヨドバシの前で発見",
+    },
+    otherUsers: [
+      {
+        name: "伊藤健太",
+        comment: "買い物帰りに撮影しました",
+        date: "2024.01.19",
+        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
+      },
+      {
+        name: "森田亜美",
+        comment: "ヨドバシの前にこんなマンホールが！",
+        date: "2024.01.18",
+        image: require("@/assets/images/sampleManholeImg/2.jpeg"),
+      },
+      {
+        name: "橋本達也",
+        comment: "電気街らしいデザインですね",
+        date: "2024.01.17",
+        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
+      },
+    ],
   },
   {
     id: 4,
     title: "秋葉原ガチャポン会館",
-    description: "たくさんのガチャガチャがある",
     latitude: 35.7004,
     longitude: 139.7707,
     image: require("@/assets/images/sampleManholeImg/4.jpeg"),
+    firstDiscoverer: {
+      name: "小林雄太",
+      date: "2024.01.18",
+      description: "ガチャポン会館の近くで発見",
+    },
+    otherUsers: [
+      {
+        name: "渡辺舞",
+        comment: "可愛いデザインですね！",
+        date: "2024.01.18",
+        image: require("@/assets/images/sampleManholeImg/6.jpeg"),
+      },
+      {
+        name: "加藤翔太",
+        comment: "ガチャポン会館とマンホールのコラボ！",
+        date: "2024.01.17",
+        image: require("@/assets/images/sampleManholeImg/1.jpg"),
+      },
+      {
+        name: "菅原みゆき",
+        comment: "オタクの聖地で発見しました",
+        date: "2024.01.16",
+        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
+      },
+    ],
   },
   {
     id: 5,
     title: "MLB 埼玉",
-    description: "地元の野球選手デザインマンホール撮ってみた",
     latitude: 36.03447,
     longitude: 139.39882,
     image: require("@/assets/images/sampleManholeImg/5.jpeg"),
+    firstDiscoverer: {
+      name: "野球太郎",
+      date: "2024.01.15",
+      description: "地元の野球選手デザインマンホール",
+    },
+    otherUsers: [
+      {
+        name: "スポーツ好き",
+        comment: "野球ファンには嬉しいデザイン！",
+        date: "2024.01.15",
+        image: require("@/assets/images/sampleManholeImg/1.jpg"),
+      },
+      {
+        name: "野口まさひろ",
+        comment: "地元の誇り！選手のデザインが素晴らしい",
+        date: "2024.01.14",
+        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
+      },
+      {
+        name: "坂田友子",
+        comment: "家族で野球観戦の帰りに撮影",
+        date: "2024.01.13",
+        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
+      },
+    ],
   },
 ];
 
@@ -117,12 +245,14 @@ export default function ManholeMap() {
         let currentLocation = await Location.getCurrentPositionAsync({});
         if (isMounted) {
           setLocation(currentLocation);
-          setRegion({
+          const initialRegion = {
             latitude: currentLocation.coords.latitude,
             longitude: currentLocation.coords.longitude,
             latitudeDelta: 0.02,
             longitudeDelta: 0.02,
-          });
+          };
+          setRegion(initialRegion);
+          setCurrentRegion(initialRegion);
         }
         locationSubscription = await Location.watchPositionAsync(
           {
@@ -174,7 +304,7 @@ export default function ManholeMap() {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (evt, gestureState) =>
-        Math.abs(gestureState.dy) > 5,
+        Math.abs(gestureState.dy) > 10,
       onPanResponderGrant: () => bottomSheetHeight.extractOffset(),
       onPanResponderMove: (e, gestureState) =>
         bottomSheetHeight.setValue(-gestureState.dy),
@@ -203,7 +333,47 @@ export default function ManholeMap() {
     } else {
       setSelectedLocation(locationData);
       setDisplayLocation(locationData);
-      animateSheet(PARTIAL_VIEW_HEIGHT, 1);
+      animateSheet(FULL_VIEW_HEIGHT, 1);
+    }
+  };
+
+  const openMapApp = async (latitude: number, longitude: number) => {
+    try {
+      if (Platform.OS === "ios") {
+        // iOSの場合、まずGoogleマップが入っているかチェック
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+        const appleMapsUrl = `http://maps.apple.com/?daddr=${latitude},${longitude}`;
+
+        const canOpenGoogleMaps = await Linking.canOpenURL(googleMapsUrl);
+
+        if (canOpenGoogleMaps) {
+          // Googleマップが利用可能な場合
+          Alert.alert("マップアプリを選択", "どのマップアプリで開きますか？", [
+            {
+              text: "Googleマップ",
+              onPress: () => Linking.openURL(googleMapsUrl),
+            },
+            {
+              text: "Appleマップ",
+              onPress: () => Linking.openURL(appleMapsUrl),
+            },
+            {
+              text: "キャンセル",
+              style: "cancel",
+            },
+          ]);
+        } else {
+          // Googleマップが利用できない場合、Appleマップを開く
+          await Linking.openURL(appleMapsUrl);
+        }
+      } else if (Platform.OS === "android") {
+        // Androidの場合はGoogleマップを開く
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+        await Linking.openURL(googleMapsUrl);
+      }
+    } catch (error) {
+      console.error("マップアプリの起動に失敗しました:", error);
+      Alert.alert("エラー", "マップアプリを起動できませんでした。");
     }
   };
 
@@ -264,8 +434,8 @@ export default function ManholeMap() {
         }}
       >
         {/* ズームレベルが適切な場合のみピンを表示 */}
-        {currentRegion &&
-          currentRegion.latitudeDelta < 0.25 &&
+        {((currentRegion && currentRegion.latitudeDelta < 0.25) ||
+          (!currentRegion && region && region.latitudeDelta < 0.25)) &&
           akihabaraLocations.map((locationItem) => (
             <Marker
               key={locationItem.id}
@@ -329,37 +499,91 @@ export default function ManholeMap() {
           style={[
             styles.bottomSheetContainer,
             {
-              height: bottomSheetHeight,
-              borderTopLeftRadius: animatedBorderRadius,
-              borderTopRightRadius: animatedBorderRadius,
+              height: FULL_VIEW_HEIGHT,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              transform: [
+                {
+                  translateY: bottomSheetHeight.interpolate({
+                    inputRange: [0, FULL_VIEW_HEIGHT],
+                    outputRange: [FULL_VIEW_HEIGHT, 0],
+                    extrapolate: "clamp",
+                  }),
+                },
+              ],
             },
           ]}
         >
-          <View style={{ flex: 1 }} {...panResponder.panHandlers}>
-            <View style={styles.grabber} />
+          <View style={{ flex: 1 }}>
+            <View style={styles.grabberArea} {...panResponder.panHandlers}>
+              <View style={styles.grabber} />
+            </View>
             <TouchableOpacity style={styles.closeButton} onPress={closeSheet}>
               <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.goToLocationButton}
+              onPress={() =>
+                openMapApp(displayLocation.latitude, displayLocation.longitude)
+              }
+            >
+              <Text style={styles.goToLocationText}>ここへ行く</Text>
             </TouchableOpacity>
             <Animated.ScrollView
               style={[
                 styles.contentScrollView,
-                { opacity: animatedContentOpacity },
+                {
+                  opacity: animatedContentOpacity,
+                  height: FULL_VIEW_HEIGHT - 100,
+                },
               ]}
               showsVerticalScrollIndicator={false}
-              scrollEnabled={isSheetOpenFully}
+              scrollEnabled={true}
             >
               <>
-                <Animated.Image
-                  source={displayLocation.image}
-                  style={[styles.cardImage, { height: animatedImageHeight }]}
-                />
-                <Text style={styles.cardTitle}>{displayLocation.title}</Text>
-                <Text style={styles.cardDescription}>
-                  {displayLocation.description}
-                </Text>
-                <Text style={styles.cardDescription}>
-                  ここにさらに長い説明や関連情報などを追加できます。
-                </Text>
+                {/* 第一発見者セクション */}
+                <View style={styles.firstDiscovererSection}>
+                  <Text style={styles.sectionTitle}>第一発見者</Text>
+                  <View style={styles.discovererInfo}>
+                    <Text style={styles.discovererName}>
+                      {displayLocation.firstDiscoverer.name}
+                    </Text>
+                    <Text style={styles.discovererDate}>
+                      {displayLocation.firstDiscoverer.date}
+                    </Text>
+                  </View>
+                  <Text style={styles.discovererDescription}>
+                    {displayLocation.firstDiscoverer.description}
+                  </Text>
+                </View>
+
+                {/* メイン画像 */}
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={displayLocation.image}
+                    style={[styles.mainImage, { height: 250 }]}
+                  />
+                </View>
+
+                {/* 他のユーザーセクション */}
+                <View style={styles.otherUsersSection}>
+                  <Text style={styles.sectionTitle}>他のユーザー</Text>
+                  {displayLocation.otherUsers.map((user, index) => (
+                    <View key={index} style={styles.userComment}>
+                      <View style={styles.userInfo}>
+                        <Text style={styles.userName}>{user.name}</Text>
+                        <Text style={styles.userDate}>{user.date}</Text>
+                      </View>
+                      <Text style={styles.userCommentText}>{user.comment}</Text>
+                      <View style={styles.userImageContainer}>
+                        <Image
+                          source={user.image}
+                          style={styles.userManholeImage}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
               </>
             </Animated.ScrollView>
           </View>
@@ -402,14 +626,16 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     zIndex: 20,
   },
+  grabberArea: {
+    paddingVertical: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   grabber: {
     width: 40,
     height: 5,
     borderRadius: 2.5,
     backgroundColor: "#ccc",
-    alignSelf: "center",
-    marginTop: 8,
-    marginBottom: 8,
   },
   closeButton: {
     position: "absolute",
@@ -429,19 +655,104 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   contentScrollView: { flex: 1 },
-  cardImage: { width: "100%", resizeMode: "cover" },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 16,
-    marginBottom: 8,
+  // 第一発見者セクション
+  firstDiscovererSection: {
     paddingHorizontal: 16,
+    paddingVertical: 16,
   },
-  cardDescription: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
     color: "#333",
-    lineHeight: 24,
-    marginBottom: 10,
+    marginBottom: 12,
+  },
+  discovererInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  discovererName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginRight: 16,
+  },
+  discovererDate: {
+    fontSize: 14,
+    color: "#666",
+  },
+  discovererDescription: {
+    fontSize: 14,
+    color: "#666",
+    lineHeight: 20,
+  },
+  // 画像セクション
+  imageContainer: {
+    alignItems: "center",
+    paddingVertical: 24,
+  },
+  mainImage: {
+    width: 250,
+    resizeMode: "cover",
+  },
+  // 他のユーザーセクション
+  otherUsersSection: {
     paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  userComment: {
+    marginBottom: 16,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginRight: 12,
+  },
+  userDate: {
+    fontSize: 12,
+    color: "#666",
+  },
+  userCommentText: {
+    fontSize: 14,
+    color: "#333",
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  userImageContainer: {
+    alignItems: "center",
+  },
+  userManholeImage: {
+    width: 200,
+    height: 150,
+    borderRadius: 8,
+    resizeMode: "cover",
+  },
+  // ここへ行くボタン
+  goToLocationButton: {
+    position: "absolute",
+    top: 50,
+    right: 12,
+    backgroundColor: "#F0E685",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 30,
+  },
+  goToLocationText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
   },
 });
