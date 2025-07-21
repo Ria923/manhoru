@@ -1,4 +1,11 @@
-import { View, Image, StyleSheet, FlatList, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons"; // ← これを追加
 import sampleData from "../../components/SampleData";
@@ -22,7 +29,6 @@ export default function GalleryAllScreen() {
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
           ),
-
         }}
       />
 
@@ -33,9 +39,18 @@ export default function GalleryAllScreen() {
         renderItem={({ item, index }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => router.push({ pathname: "/gallery/detail", params: { idx: index } })}
+            onPress={() =>
+              router.push({
+                pathname: "/gallery/detail",
+                params: { idx: index },
+              })
+            }
           >
-            <Image source={item.image} style={styles.image} resizeMode="cover" />
+            <Image
+              source={item.image}
+              style={styles.image}
+              resizeMode="cover"
+            />
           </TouchableOpacity>
         )}
         contentContainerStyle={{
