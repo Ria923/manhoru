@@ -67,7 +67,7 @@ export default function Onboarding() {
                   \ さあ、はじめましょう！ /{" "}
                 </Text>
               </View>
-              <View style={{ alignItems: "center", marginTop: 440 }}>
+              <View style={{ alignItems: "center", marginTop: 380 }}>
                 <TextInput
                   style={{
                     backgroundColor: "white",
@@ -363,11 +363,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 20,
     position: "absolute",
-    top: 300,
+    top: 250,
   },
   character1: {
     position: "absolute",
-    top: 350,
+    top: 300,
     left: 70,
     height: 90,
     width: 60,
@@ -376,13 +376,13 @@ const styles = StyleSheet.create({
   },
   character2: {
     position: "absolute",
-    top: 355,
+    top: 305,
     height: 70,
     width: 90,
   },
   character3: {
     position: "absolute",
-    top: 350,
+    top: 300,
     right: 50,
     height: 75,
     width: 70,

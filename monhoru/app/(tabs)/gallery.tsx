@@ -12,6 +12,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
+import sampleData from "../../components/SampleData";
+import { Ionicons } from '@expo/vector-icons'; // Ioniconsをインポート
+
+
 export default function NoticeScreen() {
   const router = useRouter();
 
@@ -62,7 +66,7 @@ export default function NoticeScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/gallery/detail",
-                  params: { idx: idx }, // ←インデックスを渡す
+                  params: { idx: idx },
                 })
               }
             >
@@ -89,7 +93,8 @@ export default function NoticeScreen() {
           onPress={() => router.push("/gallery/all")}
         >
           <Text style={styles.listButtonText}>すべての一覧</Text>
-          <Text style={styles.listButtonArrow}>＞</Text>
+          {/* ↓ TextからIoniconsコンポーネントに変更 */}
+          <Ionicons name="chevron-forward" size={24} color="#222" style={{ marginLeft: 4 }} />
         </TouchableOpacity>
 
         <ScrollView
@@ -128,7 +133,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   latestCardsRow: {
-    flexDirection: "column", // 横並び→縦並び
+    flexDirection: "column",
     marginBottom: 5,
     marginTop: 60,
   },
@@ -138,7 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     padding: 12,
-    marginBottom: 12, // marginRight→marginBottom
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -174,17 +179,15 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   listButtonText: {
-    fontSize: 18,
+
+    fontSize: 16,
+
+  
     fontWeight: "bold",
     color: "#222",
   },
-  listButtonArrow: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#222",
-    marginLeft: 6,
-    marginTop: 1,
-  },
+
+  // listButtonArrowのスタイルは不要になったため削除
   listCard: {
     width: 120,
     height: 120,
