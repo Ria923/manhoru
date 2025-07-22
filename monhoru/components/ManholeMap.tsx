@@ -17,178 +17,23 @@ import MapView, { Marker, Region } from "react-native-maps";
 import { ThemedView } from "./ThemedView";
 import * as Location from "expo-location";
 import { useFocusEffect } from "expo-router";
+import { supabase } from "../lib/supabase";
+type Post = {
+  id: string;
+  title: string;
+  latitude: number;
+  longitude: number;
+  image_url: string;
+  created_at: string;
+  user_name: string;
+  comment: string;
+};
 
-// --- Mock Data and Types ---
-const akihabaraLocations = [
-  {
-    id: 1,
-    title: "秋葉原駅",
-    latitude: 35.69836,
-    longitude: 139.77313,
-    image: require("@/assets/images/sampleManholeImg/1.jpg"),
-    firstDiscoverer: {
-      name: "大谷翔平",
-      date: "2024.01.22",
-      description: "初見マップへのアクセス、訪問履歴",
-    },
-    otherUsers: [
-      {
-        name: "田中太郎",
-        comment: "とても綺麗なマンホールでした！",
-        date: "2024.01.22",
-        image: require("@/assets/images/sampleManholeImg/2.jpeg"),
-      },
-      {
-        name: "佐藤花子",
-        comment: "デザインが素晴らしいですね",
-        date: "2024.01.21",
-        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
-      },
-      {
-        name: "中村健",
-        comment: "秋葉原らしいデザインで気に入りました",
-        date: "2024.01.20",
-        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
-      },
-      {
-        name: "松本美香",
-        comment: "友達と一緒に撮影しました！",
-        date: "2024.01.19",
-        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "神田明神",
-    latitude: 35.7018,
-    longitude: 139.7676,
-    image: require("@/assets/images/sampleManholeImg/2.jpeg"),
-    firstDiscoverer: {
-      name: "山田次郎",
-      date: "2024.01.20",
-      description: "神田明神の歴史あるマンホール",
-    },
-    otherUsers: [
-      {
-        name: "鈴木一郎",
-        comment: "歴史を感じるデザインです",
-        date: "2024.01.20",
-        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
-      },
-      {
-        name: "木村さくら",
-        comment: "神田明神のマンホールは特別感があります",
-        date: "2024.01.19",
-        image: require("@/assets/images/sampleManholeImg/6.jpeg"),
-      },
-      {
-        name: "青木雄一",
-        comment: "参拝のついでに発見しました",
-        date: "2024.01.18",
-        image: require("@/assets/images/sampleManholeImg/1.jpg"),
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "ヨドバシAkiba",
-    latitude: 35.6986,
-    longitude: 139.7748,
-    image: require("@/assets/images/sampleManholeImg/3.jpeg"),
-    firstDiscoverer: {
-      name: "高橋美咲",
-      date: "2024.01.19",
-      description: "ヨドバシの前で発見",
-    },
-    otherUsers: [
-      {
-        name: "伊藤健太",
-        comment: "買い物帰りに撮影しました",
-        date: "2024.01.19",
-        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
-      },
-      {
-        name: "森田亜美",
-        comment: "ヨドバシの前にこんなマンホールが！",
-        date: "2024.01.18",
-        image: require("@/assets/images/sampleManholeImg/2.jpeg"),
-      },
-      {
-        name: "橋本達也",
-        comment: "電気街らしいデザインですね",
-        date: "2024.01.17",
-        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "秋葉原ガチャポン会館",
-    latitude: 35.7004,
-    longitude: 139.7707,
-    image: require("@/assets/images/sampleManholeImg/4.jpeg"),
-    firstDiscoverer: {
-      name: "小林雄太",
-      date: "2024.01.18",
-      description: "ガチャポン会館の近くで発見",
-    },
-    otherUsers: [
-      {
-        name: "渡辺舞",
-        comment: "可愛いデザインですね！",
-        date: "2024.01.18",
-        image: require("@/assets/images/sampleManholeImg/6.jpeg"),
-      },
-      {
-        name: "加藤翔太",
-        comment: "ガチャポン会館とマンホールのコラボ！",
-        date: "2024.01.17",
-        image: require("@/assets/images/sampleManholeImg/1.jpg"),
-      },
-      {
-        name: "菅原みゆき",
-        comment: "オタクの聖地で発見しました",
-        date: "2024.01.16",
-        image: require("@/assets/images/sampleManholeImg/4.jpeg"),
-      },
-    ],
-  },
-  {
-    id: 5,
-    title: "MLB 埼玉",
-    latitude: 36.03447,
-    longitude: 139.39882,
-    image: require("@/assets/images/sampleManholeImg/5.jpeg"),
-    firstDiscoverer: {
-      name: "野球太郎",
-      date: "2024.01.15",
-      description: "地元の野球選手デザインマンホール",
-    },
-    otherUsers: [
-      {
-        name: "スポーツ好き",
-        comment: "野球ファンには嬉しいデザイン！",
-        date: "2024.01.15",
-        image: require("@/assets/images/sampleManholeImg/1.jpg"),
-      },
-      {
-        name: "野口まさひろ",
-        comment: "地元の誇り！選手のデザインが素晴らしい",
-        date: "2024.01.14",
-        image: require("@/assets/images/sampleManholeImg/3.jpeg"),
-      },
-      {
-        name: "坂田友子",
-        comment: "家族で野球観戦の帰りに撮影",
-        date: "2024.01.13",
-        image: require("@/assets/images/sampleManholeImg/5.jpeg"),
-      },
-    ],
-  },
-];
-
-type LocationData = (typeof akihabaraLocations)[0];
+type MergedLocation = {
+  latitude: number;
+  longitude: number;
+  posts: Post[];
+};
 
 // --- Constants ---
 const windowHeight = Dimensions.get("window").height;
@@ -203,13 +48,78 @@ export default function ManholeMap() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(
-    null
-  );
-  const [displayLocation, setDisplayLocation] = useState<LocationData | null>(
+  const [selectedLocation, setSelectedLocation] = useState<Post | null>(null);
+  const [displayLocation, setDisplayLocation] = useState<MergedLocation | null>(
     null
   );
   const [isSheetOpenFully, setIsSheetOpenFully] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mergedLocations, setMergedLocations] = useState<MergedLocation[]>([]);
+  // --- Supabase fetch ---
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from("posts").select("*");
+
+      if (error) {
+        console.error("投稿取得失敗:", error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data) {
+        setPosts(data);
+        // --- フィルタ: 緯度経度がnullでないデータのみ ---
+        const validData = data.filter(
+          (post) => post.latitude !== null && post.longitude !== null
+        );
+        const invalidCount = data.length - validData.length;
+        if (invalidCount > 0) {
+          console.warn(`${invalidCount} 件投稿缺少經緯度，已排除`);
+        }
+        // --- mergedLocations logic ---
+        const mergeByLocation = (data: Post[]) => {
+          const merged: MergedLocation[] = [];
+
+          // 閾値: 約40m相当の緯度経度差
+          const LOCATION_THRESHOLD = 0.0004;
+          const isNearby = (
+            a: { latitude: number; longitude: number },
+            b: { latitude: number; longitude: number }
+          ) => {
+            const latDiff = Math.abs(a.latitude - b.latitude);
+            const lngDiff = Math.abs(a.longitude - b.longitude);
+            return latDiff < LOCATION_THRESHOLD && lngDiff < LOCATION_THRESHOLD;
+          };
+
+          data.forEach((post) => {
+            const existing = merged.find((loc) =>
+              loc.posts.some((p) => isNearby(p, post))
+            );
+            if (existing) {
+              existing.posts.push(post);
+            } else {
+              merged.push({
+                latitude: post.latitude,
+                longitude: post.longitude,
+                posts: [post],
+              });
+            }
+          });
+
+          return merged;
+        };
+
+        const merged = mergeByLocation(validData);
+        setMergedLocations(merged);
+      }
+
+      setLoading(false);
+    };
+
+    fetchPosts();
+  }, []);
 
   // --- Refs and Animations ---
   const mapRef = useRef<MapView>(null);
@@ -327,11 +237,13 @@ export default function ManholeMap() {
   ).current;
 
   // --- Handlers ---
-  const handleMarkerPress = (locationData: LocationData) => {
-    if (selectedLocation?.id === locationData.id) {
+  const handleMarkerPress = (locationData: MergedLocation) => {
+    // locationData is a MergedLocation (with posts array)
+    const firstPost = locationData.posts[0];
+    if (selectedLocation?.id === firstPost.id) {
       closeSheet();
     } else {
-      setSelectedLocation(locationData);
+      setSelectedLocation(firstPost);
       setDisplayLocation(locationData);
       animateSheet(FULL_VIEW_HEIGHT, 1);
     }
@@ -436,24 +348,27 @@ export default function ManholeMap() {
         {/* ズームレベルが適切な場合のみピンを表示 */}
         {((currentRegion && currentRegion.latitudeDelta < 0.25) ||
           (!currentRegion && region && region.latitudeDelta < 0.25)) &&
-          akihabaraLocations.map((locationItem) => (
-            <Marker
-              key={locationItem.id}
-              coordinate={{
-                latitude: locationItem.latitude,
-                longitude: locationItem.longitude,
-              }}
-              onPress={() => handleMarkerPress(locationItem)}
-              tracksViewChanges={selectedLocation?.id === locationItem.id}
-              anchor={{ x: 0.5, y: 1 }}
-            >
-              <Image
-                source={require("@/assets/images/Map_pin.png")}
-                style={{ width: 45, height: 45 }}
-                resizeMode="contain"
-              />
-            </Marker>
-          ))}
+          mergedLocations.map((locationItem, index) => {
+            const firstPost = locationItem.posts[0]; // 最早投稿當代表
+            return (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: locationItem.latitude,
+                  longitude: locationItem.longitude,
+                }}
+                onPress={() => handleMarkerPress(locationItem)}
+                tracksViewChanges={selectedLocation?.id === firstPost.id}
+                anchor={{ x: 0.5, y: 1 }}
+              >
+                <Image
+                  source={require("@/assets/images/Map_pin.png")}
+                  style={{ width: 45, height: 45 }}
+                  resizeMode="contain"
+                />
+              </Marker>
+            );
+          })}
       </MapView>
 
       <TouchableOpacity
@@ -494,7 +409,7 @@ export default function ManholeMap() {
         />
       </TouchableOpacity>
 
-      {displayLocation && (
+      {displayLocation?.posts?.[0] && (
         <Animated.View
           style={[
             styles.bottomSheetContainer,
@@ -541,49 +456,71 @@ export default function ManholeMap() {
               scrollEnabled={true}
             >
               <>
-                {/* 第一発見者セクション */}
+                {/* 投稿情報セクション */}
                 <View style={styles.firstDiscovererSection}>
-                  <Text style={styles.sectionTitle}>第一発見者</Text>
+                  <Text style={styles.sectionTitle}>
+                    {displayLocation.posts[0]?.title}
+                  </Text>
                   <View style={styles.discovererInfo}>
                     <Text style={styles.discovererName}>
-                      {displayLocation.firstDiscoverer.name}
+                      {displayLocation.posts[0]?.user_name}
                     </Text>
                     <Text style={styles.discovererDate}>
-                      {displayLocation.firstDiscoverer.date}
+                      {displayLocation.posts[0]?.created_at?.split("T")[0]}
                     </Text>
                   </View>
                   <Text style={styles.discovererDescription}>
-                    {displayLocation.firstDiscoverer.description}
+                    {displayLocation.posts[0]?.comment}
                   </Text>
                 </View>
-
                 {/* メイン画像 */}
                 <View style={styles.imageContainer}>
                   <Image
-                    source={displayLocation.image}
+                    source={
+                      displayLocation.posts[0]?.image_url
+                        ? { uri: displayLocation.posts[0].image_url }
+                        : require("@/assets/images/sampleManholeImg/1.jpg")
+                    }
                     style={[styles.mainImage, { height: 250 }]}
                   />
                 </View>
-
-                {/* 他のユーザーセクション */}
-                <View style={styles.otherUsersSection}>
-                  <Text style={styles.sectionTitle}>他のユーザー</Text>
-                  {displayLocation.otherUsers.map((user, index) => (
-                    <View key={index} style={styles.userComment}>
-                      <View style={styles.userInfo}>
-                        <Text style={styles.userName}>{user.name}</Text>
-                        <Text style={styles.userDate}>{user.date}</Text>
+                {/* 他の投稿者 */}
+                {displayLocation.posts.length > 1 && (
+                  <View style={styles.otherUsersSection}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        marginBottom: 8,
+                      }}
+                    >
+                      他の投稿者
+                    </Text>
+                    {displayLocation.posts.slice(1).map((post, idx) => (
+                      <View key={post.id} style={styles.userComment}>
+                        <View style={styles.userInfo}>
+                          <Text style={styles.userName}>{post.user_name}</Text>
+                          <Text style={styles.userDate}>
+                            {post.created_at?.split("T")[0]}
+                          </Text>
+                        </View>
+                        <Text style={styles.userCommentText}>
+                          {post.comment}
+                        </Text>
+                        <View style={styles.userImageContainer}>
+                          <Image
+                            source={
+                              post.image_url
+                                ? { uri: post.image_url }
+                                : require("@/assets/images/sampleManholeImg/1.jpg")
+                            }
+                            style={styles.userManholeImage}
+                          />
+                        </View>
                       </View>
-                      <Text style={styles.userCommentText}>{user.comment}</Text>
-                      <View style={styles.userImageContainer}>
-                        <Image
-                          source={user.image}
-                          style={styles.userManholeImage}
-                        />
-                      </View>
-                    </View>
-                  ))}
-                </View>
+                    ))}
+                  </View>
+                )}
               </>
             </Animated.ScrollView>
           </View>
