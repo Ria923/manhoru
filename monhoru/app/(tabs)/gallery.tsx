@@ -13,8 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 import sampleData from "../../components/SampleData";
-import { Ionicons } from '@expo/vector-icons'; // Ioniconsをインポート
-
+import { Ionicons } from "@expo/vector-icons"; // Ioniconsをインポート
 
 export default function NoticeScreen() {
   const router = useRouter();
@@ -42,7 +41,7 @@ export default function NoticeScreen() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      console.log("👤 自己的投稿：", data);
+      console.log("マイ投稿：", data);
       if (error) {
         console.error("投稿データの取得エラー:", error);
       } else {
@@ -94,7 +93,12 @@ export default function NoticeScreen() {
         >
           <Text style={styles.listButtonText}>すべての一覧</Text>
           {/* ↓ TextからIoniconsコンポーネントに変更 */}
-          <Ionicons name="chevron-forward" size={24} color="#222" style={{ marginLeft: 4 }} />
+          <Ionicons
+            name="chevron-forward"
+            size={24}
+            color="#222"
+            style={{ marginLeft: 4 }}
+          />
         </TouchableOpacity>
 
         <ScrollView
@@ -102,15 +106,15 @@ export default function NoticeScreen() {
           showsHorizontalScrollIndicator={false}
           style={{ marginTop: 16 }}
         >
-          {posts.map((item, idx) => (
+          {posts.slice(3).map((item, idx) => (
             <TouchableOpacity
-              key={idx}
+              key={idx + 3}
               style={styles.listCard}
               activeOpacity={0.7}
               onPress={() =>
                 router.push({
                   pathname: "/gallery/detail",
-                  params: { idx: idx },
+                  params: { idx: idx + 3 },
                 })
               }
             >
@@ -179,10 +183,8 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   listButtonText: {
-
     fontSize: 16,
 
-  
     fontWeight: "bold",
     color: "#222",
   },

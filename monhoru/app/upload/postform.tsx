@@ -77,6 +77,23 @@ export default function PostFormScreen() {
       const lat = latitude ? parseFloat(latitude as string) : null;
       const lng = longitude ? parseFloat(longitude as string) : null;
 
+      // 使用 Mapbox Reverse Geocoding 抓日文地址
+      let japaneseAddress = address; // 預設值 fallback
+      if (lat && lng) {
+        try {
+          const mapboxToken =
+            "pk.eyJ1IjoicmlhOTIzMDAiLCJhIjoiY21kZDdzeHFnMDFybjJqb2MzN29pdTA2ayJ9.C7-zQxJP3DqoVJB5PP_Wsw";
+          const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?language=ja&access_token=${mapboxToken}`;
+          const res = await fetch(endpoint);
+          const data = await res.json();
+          if (data.features && data.features.length > 0) {
+            japaneseAddress = data.features[0].place_name;
+          }
+        } catch (geoErr) {
+          console.warn("Mapbox Reverse Geocoding 失敗:", geoErr);
+        }
+      }
+
       const { error: insertError } = await supabase.from("posts").insert([
         {
           user_id: user.id,
@@ -84,7 +101,7 @@ export default function PostFormScreen() {
           memo: memo,
           image_url: publicUrlData.publicUrl,
           date: date,
-          address: address,
+          address: japaneseAddress,
           latitude: lat,
           longitude: lng,
         },

@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter, Stack } from "expo-router";
-import { Ionicons } from "@expo/vector-icons"; // ← これを追加
-import sampleData from "../../components/SampleData";
+import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 
 const numColumns = 3;
 const horizontalPadding = 16;
@@ -16,8 +17,35 @@ const cardMargin = 8;
 const totalSpacing = horizontalPadding * 2 + cardMargin * (numColumns - 1);
 const size = (Dimensions.get("window").width - totalSpacing) / numColumns;
 
+type Post = {
+  id: string;
+  image_url: string;
+};
+
 export default function GalleryAllScreen() {
   const router = useRouter();
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("id, image_url")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setPosts(data);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -33,21 +61,21 @@ export default function GalleryAllScreen() {
       />
 
       <FlatList
-        data={sampleData}
-        keyExtractor={(_, idx) => idx.toString()}
+        data={posts}
+        keyExtractor={(item) => item.id}
         numColumns={numColumns}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
               router.push({
                 pathname: "/gallery/detail",
-                params: { idx: index },
+                params: { id: item.id },
               })
             }
           >
             <Image
-              source={item.image}
+              source={{ uri: item.image_url }}
               style={styles.image}
               resizeMode="cover"
             />

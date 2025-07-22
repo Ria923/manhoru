@@ -75,15 +75,32 @@ export default function GalleryScreen() {
           const location = await Location.getCurrentPositionAsync({});
           setLatitude(location.coords.latitude);
           setLongitude(location.coords.longitude);
-          const geocode = await Location.reverseGeocodeAsync({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          });
 
-          if (geocode.length > 0) {
-            const place = geocode[0];
-            const fullAddress = `${place.region ?? ""}${place.city ?? ""}`;
-            setAddress(fullAddress || "住所情報が見つかりませんでした");
+          const mapboxToken =
+            "pk.eyJ1IjoicmlhOTIzMDAiLCJhIjoiY21kZDdzeHFnMDFybjJqb2MzN29pdTA2ayJ9.C7-zQxJP3DqoVJB5PP_Wsw";
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${location.coords.longitude},${location.coords.latitude}.json?access_token=${mapboxToken}&language=ja`
+          );
+          const result = await response.json();
+
+          if (
+            result &&
+            result.features &&
+            result.features.length > 0 &&
+            result.features[0].place_name
+          ) {
+            const region = result.features.find(
+              (f: any) => f.place_type && f.place_type.includes("region")
+            );
+            const city = result.features.find(
+              (f: any) => f.place_type && f.place_type.includes("place")
+            );
+
+            if (region && region.text && city && city.text) {
+              setAddress(`${region.text}${city.text}`);
+            } else {
+              setAddress("住所情報が見つかりませんでした");
+            }
           } else {
             Alert.alert("エラー", "住所情報が見つかりませんでした");
             setAddress("住所不明");
