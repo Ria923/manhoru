@@ -23,6 +23,7 @@ export default function ProfileScreen() {
   const [avatarUrl, setAvatarUrl] = useState("");
 
   const [user, setUser] = useState<any>(null);
+  const [postCount, setPostCount] = useState(0);
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -34,6 +35,19 @@ export default function ProfileScreen() {
         setName(data.user.user_metadata.full_name ?? "");
         setAvatarUrl(data.user.user_metadata.avatar_url ?? "");
         setUser(data.user);
+        // fetch post count
+        fetchCount(data.user.id);
+      }
+    };
+
+    const fetchCount = async (userId: string) => {
+      const { count, error } = await supabase
+        .from("posts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+
+      if (!error && typeof count === "number") {
+        setPostCount(count);
       }
     };
 
@@ -89,7 +103,7 @@ export default function ProfileScreen() {
           <View style={styles.statsContainer}>
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>集めたマンホール</Text>
-              <Text style={styles.statValue}>13</Text>
+              <Text style={styles.statValue}>{postCount}</Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statLabel}>初めてのプレイ日</Text>
