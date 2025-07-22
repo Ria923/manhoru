@@ -65,7 +65,7 @@ export default function NoticeScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/gallery/detail",
-                  params: { idx: idx },
+                  params: { id: item.id },
                 })
               }
             >
@@ -114,7 +114,7 @@ export default function NoticeScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/gallery/detail",
-                  params: { idx: idx + 3 },
+                  params: { id: item.id },
                 })
               }
             >
