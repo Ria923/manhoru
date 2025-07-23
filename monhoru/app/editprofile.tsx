@@ -152,6 +152,12 @@ export default function EditProfileScreen() {
         },
       });
 
+      // 同步更新 profiles.display_name
+      await supabase
+        .from("profiles")
+        .update({ display_name: name })
+        .eq("id", currentUser.id);
+
       // 重新讀取並設置 metadata
       const {
         data: { user: updatedUser },

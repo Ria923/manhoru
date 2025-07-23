@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   View,
   Image,
@@ -81,23 +82,29 @@ export default function GalleryScreen() {
           const response = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${location.coords.longitude},${location.coords.latitude}.json?access_token=${mapboxToken}&language=ja`
           );
+
+          if (!response.ok) {
+            throw new Error("Mapbox API レスポンスエラー");
+          }
+
           const result = await response.json();
 
-          if (
-            result &&
-            result.features &&
-            result.features.length > 0 &&
-            result.features[0].place_name
-          ) {
-            const region = result.features.find(
-              (f: any) => f.place_type && f.place_type.includes("region")
+          if (result && result.features && result.features.length > 0) {
+            const region = result.features.find((f: any) =>
+              f.place_type?.includes("region")
             );
-            const city = result.features.find(
-              (f: any) => f.place_type && f.place_type.includes("place")
+            const city = result.features.find((f: any) =>
+              ["place", "locality", "district"].some((type) =>
+                f.place_type?.includes(type)
+              )
             );
 
-            if (region && region.text && city && city.text) {
-              setAddress(`${region.text}${city.text}`);
+            if (region?.text && city?.text) {
+              if (region.text === city.text) {
+                setAddress(`${region.text}`);
+              } else {
+                setAddress(`${region.text}${city.text}`);
+              }
             } else {
               setAddress("住所情報が見つかりませんでした");
             }
@@ -202,11 +209,16 @@ export default function GalleryScreen() {
     setShowImageOptions(true);
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!selectedImage) {
       Alert.alert("エラー", "画像をアップロードしてください。");
       return;
     }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const userName = user?.user_metadata?.full_name || "匿名さん";
     router.push({
       pathname: "/upload/postform",
       params: {
@@ -217,6 +229,7 @@ export default function GalleryScreen() {
         address: address,
         latitude: latitude?.toString() ?? "",
         longitude: longitude?.toString() ?? "",
+        user_name: userName,
       },
     });
   };
@@ -472,7 +485,6 @@ const styles = StyleSheet.create({
     color: "#333",
     marginTop: 10,
     fontSize: 16,
-    fontWeight: "bold",
   },
   permissionDeniedContainer: {
     flex: 1,
