@@ -112,17 +112,18 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "#fff",
-    padding: 10,
+    padding: 15,
     marginVertical: 8,
     borderRadius: 10,
     width: "100%",
+    
   },
   loginButton: {
     backgroundColor: "#F0E685",
-    padding: 12,
+    padding: 15,
     borderRadius: 10,
     marginTop: 10,
-    width: 250,
+    width: 270,
   },
   loginText: {
     color: "#333",
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   logingroup: {
-    width: 250,
+    width: 270,
     bottom: 70,
     alignSelf: "center",
     alignItems: "center",
