@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { router } from "expo-router";
 import {
   StyleSheet,
   Dimensions,
@@ -18,6 +19,9 @@ import { ThemedView } from "./ThemedView";
 import * as Location from "expo-location";
 import { useFocusEffect } from "expo-router";
 import { supabase } from "../lib/supabase";
+// Mapbox Token
+const MAPBOX_TOKEN =
+  "pk.eyJ1IjoicmlhOTIzMDAiLCJhIjoiY21kZDdzeHFnMDFybjJqb2MzN29pdTA2ayJ9.C7-zQxJP3DqoVJB5PP_Wsw";
 type Post = {
   id: string;
   title: string;
@@ -27,12 +31,16 @@ type Post = {
   created_at: string;
   user_name: string;
   comment: string;
+  user_id: string;
+  memo: string;
+  // profiles?: { display_name?: string }; // profilesフィールドはもう使わない
 };
 
 type MergedLocation = {
   latitude: number;
   longitude: number;
   posts: Post[];
+  address: string;
 };
 
 // --- Constants ---
@@ -56,11 +64,16 @@ export default function ManholeMap() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [mergedLocations, setMergedLocations] = useState<MergedLocation[]>([]);
+  const [profileMap, setProfileMap] = useState<Map<string, string>>(new Map());
   // --- Supabase fetch ---
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchPostsAndProfiles = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from("posts").select("*");
+      // 1. まずpostsのみ取得
+      const { data: posts, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: true });
 
       if (error) {
         console.error("投稿取得失敗:", error.message);
@@ -68,20 +81,41 @@ export default function ManholeMap() {
         return;
       }
 
-      if (data) {
-        setPosts(data);
+      if (posts) {
+        setPosts(posts);
+        // 2. user_id一覧を取得
+        const userIds = posts.map((post) => post.user_id).filter(Boolean);
+        // 3. 対応するprofiles取得
+        let profileMap = new Map<string, string>();
+        if (userIds.length > 0) {
+          const { data: profiles, error: profileError } = await supabase
+            .from("profiles")
+            .select("id, display_name")
+            .in("id", userIds);
+          if (profileError) {
+            console.error("プロフィール取得失敗:", profileError.message);
+          }
+          if (profiles) {
+            profileMap = new Map(
+              profiles.map((p: { id: string; display_name: string }) => [
+                p.id,
+                p.display_name,
+              ])
+            );
+          }
+        }
+        setProfileMap(profileMap);
         // --- フィルタ: 緯度経度がnullでないデータのみ ---
-        const validData = data.filter(
+        const validData = posts.filter(
           (post) => post.latitude !== null && post.longitude !== null
         );
-        const invalidCount = data.length - validData.length;
+        const invalidCount = posts.length - validData.length;
         if (invalidCount > 0) {
           console.warn(`${invalidCount} 件投稿缺少經緯度，已排除`);
         }
         // --- mergedLocations logic ---
         const mergeByLocation = (data: Post[]) => {
           const merged: MergedLocation[] = [];
-
           // 閾値: 約40m相当の緯度経度差
           const LOCATION_THRESHOLD = 0.0004;
           const isNearby = (
@@ -92,7 +126,6 @@ export default function ManholeMap() {
             const lngDiff = Math.abs(a.longitude - b.longitude);
             return latDiff < LOCATION_THRESHOLD && lngDiff < LOCATION_THRESHOLD;
           };
-
           data.forEach((post) => {
             const existing = merged.find((loc) =>
               loc.posts.some((p) => isNearby(p, post))
@@ -104,21 +137,52 @@ export default function ManholeMap() {
                 latitude: post.latitude,
                 longitude: post.longitude,
                 posts: [post],
+                address: "",
               });
             }
           });
-
           return merged;
         };
-
         const merged = mergeByLocation(validData);
-        setMergedLocations(merged);
-      }
+        // --- Mapbox Reverse Geocode address logic ---
+        const fetchAddressFromCoordinates = async (
+          lat: number,
+          lng: number
+        ): Promise<string> => {
+          try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?language=ja&access_token=${MAPBOX_TOKEN}`
+            );
+            const data = await response.json();
+            const place = data.features?.find(
+              (f: any) =>
+                f.place_type.includes("place") ||
+                f.place_type.includes("locality")
+            );
+            const region = data.features?.find((f: any) =>
+              f.place_type.includes("region")
+            );
+            return `${region?.text || ""}${place?.text || ""}`;
+          } catch (error) {
+            console.error("住所取得失敗", error);
+            return "";
+          }
+        };
 
+        const mergedWithAddress = await Promise.all(
+          merged.map(async (loc) => {
+            const address = await fetchAddressFromCoordinates(
+              loc.latitude,
+              loc.longitude
+            );
+            return { ...loc, address };
+          })
+        );
+        setMergedLocations(mergedWithAddress);
+      }
       setLoading(false);
     };
-
-    fetchPosts();
+    fetchPostsAndProfiles();
   }, []);
 
   // --- Refs and Animations ---
@@ -238,15 +302,43 @@ export default function ManholeMap() {
 
   // --- Handlers ---
   const handleMarkerPress = (locationData: MergedLocation) => {
-    // locationData is a MergedLocation (with posts array)
     const firstPost = locationData.posts[0];
     if (selectedLocation?.id === firstPost.id) {
       closeSheet();
-    } else {
-      setSelectedLocation(firstPost);
-      setDisplayLocation(locationData);
-      animateSheet(FULL_VIEW_HEIGHT, 1);
+      return;
     }
+
+    (async () => {
+      let address = locationData.address;
+      if (!address) {
+        try {
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${locationData.longitude},${locationData.latitude}.json?language=ja&access_token=${MAPBOX_TOKEN}`
+          );
+          const data = await res.json();
+          const place = data.features?.find(
+            (f: any) =>
+              f.place_type.includes("place") ||
+              f.place_type.includes("locality")
+          );
+          const region = data.features?.find((f: any) =>
+            f.place_type.includes("region")
+          );
+          address = `${region?.text || ""}${place?.text || ""}`;
+        } catch (error) {
+          console.error("即時地址取得失敗", error);
+        }
+      }
+
+      setSelectedLocation(firstPost);
+      setDisplayLocation({
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        posts: locationData.posts,
+        address,
+      });
+      animateSheet(FULL_VIEW_HEIGHT, 1);
+    })();
   };
 
   const openMapApp = async (latitude: number, longitude: number) => {
@@ -349,7 +441,7 @@ export default function ManholeMap() {
         {((currentRegion && currentRegion.latitudeDelta < 0.25) ||
           (!currentRegion && region && region.latitudeDelta < 0.25)) &&
           mergedLocations.map((locationItem, index) => {
-            const firstPost = locationItem.posts[0]; // 最早投稿當代表
+            const firstPost = locationItem.posts[0];
             return (
               <Marker
                 key={index}
@@ -415,8 +507,8 @@ export default function ManholeMap() {
             styles.bottomSheetContainer,
             {
               height: FULL_VIEW_HEIGHT,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
               transform: [
                 {
                   translateY: bottomSheetHeight.interpolate({
@@ -436,14 +528,7 @@ export default function ManholeMap() {
             <TouchableOpacity style={styles.closeButton} onPress={closeSheet}>
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.goToLocationButton}
-              onPress={() =>
-                openMapApp(displayLocation.latitude, displayLocation.longitude)
-              }
-            >
-              <Text style={styles.goToLocationText}>ここへ行く</Text>
-            </TouchableOpacity>
+
             <Animated.ScrollView
               style={[
                 styles.contentScrollView,
@@ -458,31 +543,81 @@ export default function ManholeMap() {
               <>
                 {/* 投稿情報セクション */}
                 <View style={styles.firstDiscovererSection}>
-                  <Text style={styles.sectionTitle}>
-                    {displayLocation.posts[0]?.title}
-                  </Text>
-                  <View style={styles.discovererInfo}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Image
+                      source={require("@/assets/images/memo_pin.png")}
+                      style={styles.memoPin}
+                    />
+                    <Text style={styles.addressText}>
+                      {displayLocation?.address || "取得中..."}
+                    </Text>
+                  </View>
+                  <Text style={styles.discoverLabel}>第一発見者</Text>
+                  <View style={styles.discovererInfoRow}>
                     <Text style={styles.discovererName}>
-                      {displayLocation.posts[0]?.user_name}
+                      {profileMap.get(displayLocation.posts[0]?.user_id) ||
+                        "名無しさん"}
                     </Text>
                     <Text style={styles.discovererDate}>
                       {displayLocation.posts[0]?.created_at?.split("T")[0]}
                     </Text>
                   </View>
                   <Text style={styles.discovererDescription}>
-                    {displayLocation.posts[0]?.comment}
+                    {displayLocation.posts[0]?.memo}
                   </Text>
                 </View>
                 {/* メイン画像 */}
                 <View style={styles.imageContainer}>
-                  <Image
-                    source={
-                      displayLocation.posts[0]?.image_url
-                        ? { uri: displayLocation.posts[0].image_url }
-                        : require("@/assets/images/sampleManholeImg/1.jpg")
+                  <View style={styles.imageWrapper}>
+                    <Image
+                      source={
+                        displayLocation.posts[0]?.image_url
+                          ? { uri: displayLocation.posts[0].image_url }
+                          : require("@/assets/images/sampleManholeImg/1.jpg")
+                      }
+                      style={styles.postImage}
+                    />
+                  </View>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    paddingHorizontal: 20,
+                    marginTop: 20,
+                  }}
+                >
+                  <TouchableOpacity
+                    style={styles.goToLocationButton}
+                    onPress={() => {
+                      console.log("写真を追加");
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => router.push("../../(tabs)/Upload")}
+                    >
+                      <View style={styles.iconWithText}>
+                        <Text style={styles.plusIcon}>＋</Text>
+                        <Text style={styles.goToLocationText}>投稿する</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.goToLocationButton}
+                    onPress={() =>
+                      openMapApp(
+                        displayLocation.latitude,
+                        displayLocation.longitude
+                      )
                     }
-                    style={[styles.mainImage, { height: 250 }]}
-                  />
+                  >
+                    <View style={styles.iconWithText}>
+                      <Image
+                        source={require("@/assets/images/memo_map.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.goToLocationText}>ここへ行く</Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 {/* 他の投稿者 */}
                 {displayLocation.posts.length > 1 && (
@@ -492,33 +627,45 @@ export default function ManholeMap() {
                         fontSize: 18,
                         fontWeight: "bold",
                         marginBottom: 8,
+                        marginHorizontal: 24,
                       }}
                     >
                       他の投稿者
                     </Text>
-                    {displayLocation.posts.slice(1).map((post, idx) => (
-                      <View key={post.id} style={styles.userComment}>
-                        <View style={styles.userInfo}>
-                          <Text style={styles.userName}>{post.user_name}</Text>
-                          <Text style={styles.userDate}>
-                            {post.created_at?.split("T")[0]}
+                    {displayLocation.posts
+                      .slice(1)
+                      .sort(
+                        (a, b) =>
+                          new Date(b.created_at).getTime() -
+                          new Date(a.created_at).getTime()
+                      )
+                      .map((post, idx) => (
+                        <View style={styles.userComment} key={post.id}>
+                          <View style={styles.userInfo}>
+                            <Text style={styles.userName}>
+                              {profileMap.get(post.user_id) || "名無しさん"}
+                            </Text>
+                            <Text style={styles.userDate}>
+                              {post.created_at?.split("T")[0]}
+                            </Text>
+                          </View>
+                          <Text style={styles.userCommentText}>
+                            {post.memo}
                           </Text>
+                          <View style={styles.userimageContainer}>
+                            <View style={styles.imageWrapper}>
+                              <Image
+                                source={
+                                  post.image_url
+                                    ? { uri: post.image_url }
+                                    : require("@/assets/images/sampleManholeImg/1.jpg")
+                                }
+                                style={styles.postImage}
+                              />
+                            </View>
+                          </View>
                         </View>
-                        <Text style={styles.userCommentText}>
-                          {post.comment}
-                        </Text>
-                        <View style={styles.userImageContainer}>
-                          <Image
-                            source={
-                              post.image_url
-                                ? { uri: post.image_url }
-                                : require("@/assets/images/sampleManholeImg/1.jpg")
-                            }
-                            style={styles.userManholeImage}
-                          />
-                        </View>
-                      </View>
-                    ))}
+                      ))}
                   </View>
                 )}
               </>
@@ -594,62 +741,113 @@ const styles = StyleSheet.create({
   contentScrollView: { flex: 1 },
   // 第一発見者セクション
   firstDiscovererSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 0,
+  },
+  discoverLabel: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+    marginHorizontal: 24,
   },
   sectionTitle: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 12,
+    marginHorizontal: 24,
   },
-  discovererInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+  titleText: {
+    fontSize: 16,
+    fontWeight: "normal",
+    color: "#333",
+    marginHorizontal: 24,
     marginBottom: 8,
   },
+  discovererInfoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 24,
+    marginBottom: 8,
+    alignItems: "center",
+  },
   discovererName: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
     color: "#333",
     marginRight: 16,
   },
   discovererDate: {
-    fontSize: 14,
+    fontSize: 15,
     color: "#666",
   },
   discovererDescription: {
     fontSize: 14,
     color: "#666",
     lineHeight: 20,
+    marginHorizontal: 24,
   },
   // 画像セクション
   imageContainer: {
     alignItems: "center",
     paddingVertical: 24,
+    bottom: 25,
   },
   mainImage: {
     width: 250,
     resizeMode: "cover",
   },
+  userimageContainer: {
+    alignItems: "center",
+    paddingVertical: 24,
+    bottom: 5,
+  },
+  imageWrapper: {
+    borderWidth: 2,
+    borderColor: "#A9D0F5",
+    borderRadius: 20,
+    padding: 8,
+    marginVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    width: "90%",
+  },
+  imageWrapperCompact: {
+    borderWidth: 2,
+    borderColor: "#A9D0F5",
+    borderRadius: 20,
+    padding: 8,
+    marginVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    width: 320,
+    maxWidth: "95%",
+  },
+  postImage: {
+    width: 300,
+    height: 300,
+    resizeMode: "cover",
+  },
   // 他のユーザーセクション
   otherUsersSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 0,
   },
   userComment: {
-    marginBottom: 16,
+    // marginBottom removed for consistent spacing
+    marginBottom: 5,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
+    marginHorizontal: 24,
     marginBottom: 4,
   },
   userName: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#333",
-    marginRight: 12,
+    marginRight: 16,
   },
   userDate: {
     fontSize: 12,
@@ -659,37 +857,54 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
     lineHeight: 20,
-    marginBottom: 8,
-  },
-  userImageContainer: {
-    alignItems: "center",
-  },
-  userManholeImage: {
-    width: 200,
-    height: 150,
-    borderRadius: 8,
-    resizeMode: "cover",
+    marginBottom: 3,
+    marginHorizontal: 24,
   },
   // ここへ行くボタン
   goToLocationButton: {
-    position: "absolute",
-    top: 50,
-    right: 12,
+    flex: 1,
+    height: 50,
     backgroundColor: "#F0E685",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    marginHorizontal: 10,
+    borderRadius: 40,
     alignItems: "center",
+    justifyContent: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+
     elevation: 5,
-    zIndex: 30,
+    bottom: 50,
   },
   goToLocationText: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#333",
+  },
+  memoPin: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
+    marginBottom: 15,
+    marginLeft: 18,
+  },
+  addressText: {
+    fontSize: 15,
+    color: "#444",
+    marginLeft: 8,
+    marginBottom: 15,
+  },
+  icon: {
+    width: 35,
+    height: 35,
+    marginRight: 6,
+    resizeMode: "contain",
+  },
+  iconWithText: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  plusIcon: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginRight: 6,
+    color: "#739AD1",
   },
 });

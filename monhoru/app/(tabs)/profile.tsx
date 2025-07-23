@@ -112,11 +112,16 @@ export default function ProfileScreen() {
               </Text>
             </View>
           </View>
+          <Image
+            source={require("@/assets/onboarding/char1.png")}
+            style={styles.decorativeImage}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.footerLinks}>
           <TouchableOpacity onPress={() => router.push("/terms")}>
-            <Text style={styles.footerLinkText}>利用規約</Text>
+            <Text style={styles.footerLinkText1}>利用規約</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleLogout}>
             <Text style={styles.footerLinkText}>ログアウト</Text>
@@ -185,8 +190,9 @@ const styles = StyleSheet.create({
   },
   statBox: {
     width: Dimensions.get("window").width * 0.4,
-    height: 120,
-    backgroundColor: "#FFFFA0",
+    height: 150,
+    borderWidth: 2,
+    borderColor: "#A9D0F5",
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
@@ -194,7 +200,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 16,
     color: "#333",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   statValue: {
     fontSize: 30,
@@ -208,11 +214,22 @@ const styles = StyleSheet.create({
   },
   footerLinks: {
     alignItems: "center",
-    marginBottom: 85,
+    marginBottom: 75,
+  },
+  footerLinkText1: {
+    fontSize: 16,
+    color: "#545353ff",
+    marginBottom: 15,
   },
   footerLinkText: {
     fontSize: 16,
-    color: "#908C8C",
+    color: "#cdcdcdff",
     marginBottom: 30,
+  },
+  decorativeImage: {
+    width: "100%",
+    height: 180,
+    marginTop: 70,
+    right: 120,
   },
 });

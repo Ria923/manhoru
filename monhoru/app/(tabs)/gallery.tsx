@@ -11,8 +11,6 @@ import {
 import { ThemedView } from "@/components/ThemedView";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-
-import sampleData from "../../components/SampleData";
 import { Ionicons } from "@expo/vector-icons"; // Ioniconsをインポート
 
 export default function NoticeScreen() {
@@ -55,77 +53,99 @@ export default function NoticeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <ThemedView style={styles.container}>
-        {/* 最新の写真 */}
-        <View style={styles.latestCardsRow}>
-          {posts.slice(0, 3).map((item, idx) => (
+        {posts.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require("@/assets/onboarding/char3.png")}
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.emptyTitle}>まだ投稿がありません</Text>
+            <Text style={styles.emptySubtitle}>
+              あなたの初めての投稿をシェアしましょう！
+            </Text>
             <TouchableOpacity
-              key={idx}
-              style={styles.latestCard}
+              style={styles.emptyButton}
               activeOpacity={0.7}
-              onPress={() =>
-                router.push({
-                  pathname: "/gallery/detail",
-                  params: { id: item.id },
-                })
-              }
+              onPress={() => router.push("/(tabs)/Upload")}
             >
-              <Image
-                source={{ uri: item.image_url }}
-                style={styles.latestImage}
-                resizeMode="cover"
-              />
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardDate}>{`投稿日：${item.created_at.slice(
-                  0,
-                  10
-                )}`}</Text>
-              </View>
+              <Text style={styles.emptyButtonText}>今すぐ投稿する</Text>
             </TouchableOpacity>
-          ))}
-        </View>
+          </View>
+        ) : (
+          <>
+            {/* 最新の写真 */}
+            <View style={styles.latestCardsRow}>
+              {posts.slice(0, 3).map((item, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.latestCard}
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/gallery/detail",
+                      params: { id: item.id },
+                    })
+                  }
+                >
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.latestImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle}>{item.title}</Text>
+                    <Text
+                      style={styles.cardDate}
+                    >{`投稿日：${item.created_at.slice(0, 10)}`}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-        {/* 一覧ボタン */}
-        <TouchableOpacity
-          style={styles.listButton}
-          activeOpacity={0.7}
-          onPress={() => router.push("/gallery/all")}
-        >
-          <Text style={styles.listButtonText}>すべての一覧</Text>
-          {/* ↓ TextからIoniconsコンポーネントに変更 */}
-          <Ionicons
-            name="chevron-forward"
-            size={24}
-            color="#222"
-            style={{ marginLeft: 4 }}
-          />
-        </TouchableOpacity>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: 16 }}
-        >
-          {posts.slice(3).map((item, idx) => (
+            {/* 一覧ボタン */}
             <TouchableOpacity
-              key={idx + 3}
-              style={styles.listCard}
+              style={styles.listButton}
               activeOpacity={0.7}
-              onPress={() =>
-                router.push({
-                  pathname: "/gallery/detail",
-                  params: { id: item.id },
-                })
-              }
+              onPress={() => router.push("/gallery/all")}
             >
-              <Image
-                source={{ uri: item.image_url }}
-                style={styles.listImage}
-                resizeMode="cover"
+              <Text style={styles.listButtonText}>すべての一覧</Text>
+              {/* ↓ TextからIoniconsコンポーネントに変更 */}
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                color="#222"
+                style={{ marginLeft: 4 }}
               />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 16 }}
+            >
+              {posts.slice(3).map((item, idx) => (
+                <TouchableOpacity
+                  key={idx + 3}
+                  style={styles.listCard}
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/gallery/detail",
+                      params: { id: item.id },
+                    })
+                  }
+                >
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.listImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
       </ThemedView>
     </SafeAreaView>
   );
@@ -143,7 +163,8 @@ const styles = StyleSheet.create({
   },
   latestCard: {
     flexDirection: "row",
-    backgroundColor: "#F8E99C",
+    borderWidth: 2,
+    borderColor: "#A9D0F5",
     borderRadius: 16,
     alignItems: "center",
     padding: 12,
@@ -204,5 +225,38 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 8,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    bottom: 80,
+  },
+  emptyImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 24,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: "#222",
+  },
+  emptySubtitle: {
+    fontSize: 16,
+    color: "#666",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  emptyButton: {
+    backgroundColor: "#F8E99C",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 24,
+  },
+  emptyButtonText: {
+    fontSize: 16,
+    color: "#222",
   },
 });

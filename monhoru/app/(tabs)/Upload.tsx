@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   View,
   Image,
@@ -92,12 +93,19 @@ export default function GalleryScreen() {
             const region = result.features.find(
               (f: any) => f.place_type && f.place_type.includes("region")
             );
-            const city = result.features.find(
-              (f: any) => f.place_type && f.place_type.includes("place")
+            const district = result.features.find(
+              (f: any) =>
+                f.place_type &&
+                (f.place_type.includes("district") ||
+                  f.place_type.includes("locality"))
             );
 
-            if (region && region.text && city && city.text) {
-              setAddress(`${region.text}${city.text}`);
+            if (region && district && region.text && district.text) {
+              if (region.text === district.text) {
+                setAddress(`${region.text}`);
+              } else {
+                setAddress(`${region.text}${district.text}`);
+              }
             } else {
               setAddress("住所情報が見つかりませんでした");
             }
@@ -202,11 +210,16 @@ export default function GalleryScreen() {
     setShowImageOptions(true);
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!selectedImage) {
       Alert.alert("エラー", "画像をアップロードしてください。");
       return;
     }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const userName = user?.user_metadata?.full_name || "匿名さん";
     router.push({
       pathname: "/upload/postform",
       params: {
@@ -217,6 +230,7 @@ export default function GalleryScreen() {
         address: address,
         latitude: latitude?.toString() ?? "",
         longitude: longitude?.toString() ?? "",
+        user_name: userName,
       },
     });
   };
@@ -472,7 +486,6 @@ const styles = StyleSheet.create({
     color: "#333",
     marginTop: 10,
     fontSize: 16,
-    fontWeight: "bold",
   },
   permissionDeniedContainer: {
     flex: 1,
