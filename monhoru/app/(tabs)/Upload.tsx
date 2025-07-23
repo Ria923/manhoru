@@ -82,29 +82,28 @@ export default function GalleryScreen() {
           const response = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${location.coords.longitude},${location.coords.latitude}.json?access_token=${mapboxToken}&language=ja`
           );
+
+          if (!response.ok) {
+            throw new Error("Mapbox API レスポンスエラー");
+          }
+
           const result = await response.json();
 
-          if (
-            result &&
-            result.features &&
-            result.features.length > 0 &&
-            result.features[0].place_name
-          ) {
-            const region = result.features.find(
-              (f: any) => f.place_type && f.place_type.includes("region")
+          if (result && result.features && result.features.length > 0) {
+            const region = result.features.find((f: any) =>
+              f.place_type?.includes("region")
             );
-            const district = result.features.find(
-              (f: any) =>
-                f.place_type &&
-                (f.place_type.includes("district") ||
-                  f.place_type.includes("locality"))
+            const city = result.features.find((f: any) =>
+              ["place", "locality", "district"].some((type) =>
+                f.place_type?.includes(type)
+              )
             );
 
-            if (region && district && region.text && district.text) {
-              if (region.text === district.text) {
+            if (region?.text && city?.text) {
+              if (region.text === city.text) {
                 setAddress(`${region.text}`);
               } else {
-                setAddress(`${region.text}${district.text}`);
+                setAddress(`${region.text}${city.text}`);
               }
             } else {
               setAddress("住所情報が見つかりませんでした");
