@@ -72,9 +72,9 @@ export default function Onboarding() {
                   style={{
                     backgroundColor: "white",
                     borderRadius: 8,
-                    padding: 10,
+                    padding: 15,
                     marginVertical: 5,
-                    width: 250,
+                    width: 270,
                     marginBottom: 10,
                   }}
                   placeholder="メールアドレス"
@@ -87,9 +87,9 @@ export default function Onboarding() {
                   style={{
                     backgroundColor: "white",
                     borderRadius: 8,
-                    padding: 10,
+                    padding: 15,
                     marginBottom: 10,
-                    width: 250,
+                    width: 270,
                   }}
                   placeholder="パスワード"
                   secureTextEntry
@@ -100,8 +100,8 @@ export default function Onboarding() {
                   style={{
                     backgroundColor: "#F0E685",
                     borderRadius: 8,
-                    padding: 12,
-                    width: 250,
+                    padding: 15,
+                    width: 270,
                     alignItems: "center",
                   }}
                   onPress={async () => {

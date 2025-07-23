@@ -1,7 +1,16 @@
 import React from "react";
-import { StyleSheet, View, Image, Text, ScrollView, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  ScrollView,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import articleSampleData from "../../components/NoticeData";
 
 export default function NoticeScreen() {
@@ -9,6 +18,14 @@ export default function NoticeScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      {/* 右上に❌ボタンを追加 */}
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => router.back()}
+      >
+        <Ionicons name="close-outline" size={40} color="#fff" />
+      </TouchableOpacity>
+
       <Text style={styles.mainTitle}>イベント | お知らせ</Text>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -18,7 +35,11 @@ export default function NoticeScreen() {
             style={styles.card}
             onPress={() => router.push(`/notice/showArticle?id=${item.id}`)}
           >
-            <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
+            <Image
+              source={item.image}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
             <View style={styles.overlay}>
               <Text style={styles.cardTitle}>{item.title}</Text>
             </View>
@@ -68,5 +89,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     textAlign: "center",
   },
+  closeButton: {
+    position: "absolute",
+    top: 50,
+    right: 16,
+    zIndex: 10,
+    backgroundColor: "#739AD1",
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
 });
-
