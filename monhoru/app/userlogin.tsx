@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function UserLoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -79,30 +80,60 @@ export default function UserLoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TextInput
-            placeholder="パスワード"
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          <View
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 10,
+              marginVertical: 8,
+              flexDirection: "row",
+              alignItems: "center",
+              paddingHorizontal: 10,
+              width: "100%",
+            }}
+          >
+            <TextInput
+              placeholder="パスワード"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              style={{ flex: 1, paddingVertical: 10 }}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#888"
+              />
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginText}>ログイン</Text>
           </TouchableOpacity>
+          {/* <TouchableOpacity onPress={() => router.push("/reset-password")}>
+            <Text
+              style={{
+                color: "#fff",
+                marginTop: 20,
+                marginBottom: 6,
+                fontSize: 13,
+              }}
+            >
+              パスワードをお忘れですか？
+            </Text>
+          </TouchableOpacity> */}
         </View>
       </View>
     </TouchableWithoutFeedback>
-    // ▲▲▲ 変更ここまで ▲▲▲
   );
 }
 
 const styles = StyleSheet.create({
-  // keyboardAvoidingContainerは不要になったため削除
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#739AD1", // ◀ 背景色をこちらに移動
+    backgroundColor: "#739AD1",
   },
   backButton: {
     position: "absolute",
