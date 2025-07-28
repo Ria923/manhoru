@@ -20,12 +20,28 @@ export default function TermsScreen() {
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
           ),
-          headerTitle: "",
+          headerTitle: () => (
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ fontSize: 16, fontWeight: "bold" }}
+            >
+              マンホール利用規約
+            </Text>
+          ),
+          headerShadowVisible: false,
         }}
       />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={true}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{
+          padding: 20,
+          paddingBottom: 40,
+          backgroundColor: "#fff",
+        }}
+        showsVerticalScrollIndicator={true}
+      >
         <View style={styles.contentContainer}>
-          <Text style={styles.subtitle}>マンホール利用規約</Text>
           <Text style={styles.content}>
             この利用規約（以下、「本規約」といいます。）は、○○（）（以下、「当方」といいます。）が提供するアプリケーション「○○（アプリ名）」（以下、「本アプリ」といいます。）の利用条件を定めるものです。本アプリをご利用になるユーザーの皆さま（以下、「ユーザー」といいます。）には、本規約に同意の上、本アプリをご利用いただきます。
           </Text>
@@ -127,7 +143,6 @@ export default function TermsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
   },
   scrollView: {
     flex: 1,
@@ -150,13 +165,22 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 8,
     color: "#333",
   },
   content: {
     fontSize: 16,
-    lineHeight: 24,
+    lineHeight: 26,
     marginBottom: 8,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 8,
   },
 });

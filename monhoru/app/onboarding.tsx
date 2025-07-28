@@ -2,6 +2,7 @@ import * as WebBrowser from "expo-web-browser";
 WebBrowser.maybeCompleteAuthSession();
 
 import React, { useRef, useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -24,6 +25,7 @@ export default function Onboarding() {
   const swiperRef = useRef<Swiper>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Swiper
@@ -83,19 +85,35 @@ export default function Onboarding() {
                   value={email}
                   onChangeText={setEmail}
                 />
-                <TextInput
+                <View
                   style={{
                     backgroundColor: "white",
                     borderRadius: 8,
-                    padding: 15,
+                    marginVertical: 5,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    paddingHorizontal: 10,
+                    width: 250,
                     marginBottom: 10,
-                    width: 270,
                   }}
-                  placeholder="パスワード"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                />
+                >
+                  <TextInput
+                    placeholder="パスワード"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                    style={{ flex: 1, paddingVertical: 10 }}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={20}
+                      color="#888"
+                    />
+                  </TouchableOpacity>
+                </View>
                 <TouchableOpacity
                   style={{
                     backgroundColor: "#F0E685",

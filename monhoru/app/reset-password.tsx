@@ -1,5 +1,6 @@
 // /reset-password.tsx（或任意你頁面名稱）
 import { useEffect, useState } from "react";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { supabase } from "@/lib/supabase";
 
 export default function ResetPasswordPage() {
@@ -7,15 +8,25 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(hash.replace("#", ""));
-    const access_token = params.get("access_token");
+    const url = window.location.href;
+    const queryParams = new URLSearchParams(url.split("?")[1] || "");
+    const hashParams = new URLSearchParams(url.split("#")[1] || "");
 
-    if (access_token) {
-      supabase.auth.setSession({
-        access_token,
-        refresh_token: params.get("refresh_token") || "",
-      });
+    const access_token =
+      queryParams.get("access_token") || hashParams.get("access_token");
+    const refresh_token =
+      queryParams.get("refresh_token") || hashParams.get("refresh_token");
+
+    if (access_token && refresh_token) {
+      supabase.auth
+        .setSession({ access_token, refresh_token })
+        .then(({ error }) => {
+          if (error) {
+            setMessage("セッションエラー：" + error.message);
+          }
+        });
+    } else {
+      setMessage("トークン情報が見つかりませんでした。");
     }
   }, []);
 
@@ -29,15 +40,38 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div>
-      <h2>新しいパスワードを入力してください</h2>
-      <input
-        type="password"
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
+        新しいパスワードを入力してください
+      </Text>
+      <TextInput
+        placeholder="新しいパスワード"
+        secureTextEntry
         value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
+        onChangeText={setNewPassword}
+        style={{
+          height: 40,
+          borderColor: "#ccc",
+          borderWidth: 1,
+          marginBottom: 10,
+          paddingHorizontal: 10,
+        }}
       />
-      <button onClick={handleReset}>変更する</button>
-      <p>{message}</p>
-    </div>
+      <TouchableOpacity
+        onPress={handleReset}
+        style={{
+          backgroundColor: "#007bff",
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          borderRadius: 5,
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ color: "#fff" }}>変更する</Text>
+      </TouchableOpacity>
+      {message !== "" && (
+        <Text style={{ marginTop: 10, color: "red" }}>{message}</Text>
+      )}
+    </View>
   );
 }
