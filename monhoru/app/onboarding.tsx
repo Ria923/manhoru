@@ -93,7 +93,7 @@ export default function Onboarding() {
                     flexDirection: "row",
                     alignItems: "center",
                     paddingHorizontal: 10,
-                    width: 250,
+                    width: 270,
                     marginBottom: 10,
                   }}
                 >
@@ -102,7 +102,7 @@ export default function Onboarding() {
                     secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
-                    style={{ flex: 1, paddingVertical: 10 }}
+                    style={{ flex: 1, paddingVertical: 15 }}
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}

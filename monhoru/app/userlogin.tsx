@@ -96,7 +96,7 @@ export default function UserLoginScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
-              style={{ flex: 1, paddingVertical: 10 }}
+              style={{ flex: 1, paddingVertical: 15 }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
